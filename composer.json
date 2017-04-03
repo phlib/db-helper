@@ -19,9 +19,20 @@
         }
     ],
     "require": {
-        "php": "^5.6|^7"
+        "php": "^5.6|^7",
+        "phlib/db": "^0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Phlib\\DbHelper\\": "src/"
+        }
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phlib\\DbHelper\\Tests\\": "tests/"
+        }
     }
 }
