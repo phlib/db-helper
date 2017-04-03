@@ -23,7 +23,10 @@ class BigResult
 
     /**
      * @param Adapter $adapter
-     * @param array $options
+     * @param array $options {
+     *     @var int $long_query_time   Default 7200
+     *     @var int $net_write_timeout Default 7200
+     * }
      */
     public function __construct(Adapter $adapter, array $options = [])
     {
