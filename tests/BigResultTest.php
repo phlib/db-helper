@@ -71,6 +71,7 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
 
     public function testCheckForInspectedRowLimitOnSuccess()
     {
+        /** @var BigResult|\PHPUnit_Framework_MockObject_MockObject $bigResult */
         $bigResult = $this->getMockBuilder(BigResult::class)
             ->setConstructorArgs([$this->adapter])
             ->setMethods(['getInspectedRows'])
@@ -88,6 +89,7 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckForInspectedRowLimitOnFailure()
     {
+        /** @var BigResult|\PHPUnit_Framework_MockObject_MockObject $bigResult */
         $bigResult = $this->getMockBuilder(BigResult::class)
             ->setConstructorArgs([$this->adapter])
             ->setMethods(['getInspectedRows'])

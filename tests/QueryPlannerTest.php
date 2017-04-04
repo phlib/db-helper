@@ -56,6 +56,7 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ['rows' => $row3]
         ];
 
+        /** @var QueryPlanner|\PHPUnit_Framework_MockObject_MockObject $planner */
         $planner = $this->getMockBuilder(QueryPlanner::class)
             ->setConstructorArgs([$this->adapter, 'SELECT'])
             ->setMethods(['getPlan'])
@@ -77,6 +78,7 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ['rows' => $row2]
         ];
 
+        /** @var QueryPlanner|\PHPUnit_Framework_MockObject_MockObject $planner */
         $planner = $this->getMockBuilder(QueryPlanner::class)
             ->setConstructorArgs([$this->adapter, 'SELECT'])
             ->setMethods(['getPlan'])
