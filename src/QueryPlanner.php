@@ -31,7 +31,7 @@ class QueryPlanner
      * @param string $select
      * @param array $bind
      */
-    public function __construct(Adapter $adapter, $select, array $bind = array())
+    public function __construct(Adapter $adapter, $select, array $bind = [])
     {
         $this->adapter = $adapter;
         $this->select  = $select;
