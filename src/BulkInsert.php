@@ -3,7 +3,6 @@
 namespace Phlib\DbHelper;
 
 use Phlib\Db\Adapter;
-use Phlib\Db\Adapter\QuotableAdapterInterface;
 use Phlib\DbHelper\Exception\RuntimeException;
 
 /**
@@ -70,7 +69,7 @@ class BulkInsert
     /**
      * Constructor
      *
-     * @param QuotableAdapterInterface $adapter
+     * @param Adapter $adapter
      * @param string  $table
      * @param array $insertFields
      * @param array $updateFields
@@ -79,7 +78,7 @@ class BulkInsert
      * }
      */
     public function __construct(
-        QuotableAdapterInterface $adapter,
+        Adapter $adapter,
         $table,
         array $insertFields,
         array $updateFields = [],
@@ -122,7 +121,7 @@ class BulkInsert
                 if (is_int($key)) {
                     $values[] = "$value = VALUES($value)";
                 } else {
-                    $values[] = $this->adapter->quoteInto("$key = ?", $value);
+                    $values[] = $this->adapter->quote()->into("$key = ?", $value);
                 }
             }
             $this->updateFields = $values;
@@ -198,7 +197,7 @@ class BulkInsert
         }
         $values = [];
         foreach ($this->rows as $row) {
-            array_map([$this->adapter, 'quote'], $row);
+            array_map([$this->adapter->quote(), 'value'], $row);
             $values[] = '(' . implode(', ', $row) . ')';
         }
         $values = implode(', ', $values);

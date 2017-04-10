@@ -4,7 +4,7 @@ namespace Phlib\DbHelper\Tests;
 
 use Phlib\DbHelper\BulkInsert;
 use Phlib\DbHelper\Exception\RuntimeException;
-use Phlib\Db\Adapter\QuotableAdapterInterface;
+use Phlib\Db\Adapter;
 
 /**
  * BulkInsert Test
@@ -15,13 +15,20 @@ use Phlib\Db\Adapter\QuotableAdapterInterface;
 class BulkInsertTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $adapter;
 
     protected function setUp()
     {
-        $this->adapter = $this->createMock(QuotableAdapterInterface::class);
+        $this->adapter = $this->createMock(Adapter::class);
+
+        $quoteHandler = new Adapter\QuoteHandler(function ($value) {
+            return "`$value`";
+        });
+        $this->adapter->method('quote')
+            ->willReturn($quoteHandler);
+
         parent::setUp();
     }
 
