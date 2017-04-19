@@ -39,6 +39,41 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider fetchSqlQuotesDataProvider
+     * @param mixed $value
+     * @param string $expected
+     */
+    public function testFetchSqlQuotes($value, $expected)
+    {
+        $table = 'test_table';
+        $insertFields = ['field'];
+        $updateFields = ['field'];
+        $inserter = new BulkInsert($this->adapter, $table, $insertFields, $updateFields);
+
+        $inserter->add([$value]);
+        $actual = $inserter->fetchSql();
+
+        $expectedSql = "VALUES ({$expected})";
+
+        $this->assertContains($expectedSql, $actual);
+    }
+
+    public function fetchSqlQuotesDataProvider()
+    {
+        return [
+            ['string', '`string`'],
+            ['a1', '`a1`'],
+            ['1a', '`1a`'],
+            [172, '172'],
+            ['172', '172'],
+            [172.16, '172.16'],
+            ['172.16', '172.16'],
+            ['172.16.255.255', '`172.16.255.255`'],
+            ['2017-03-18 00:00:00', '`2017-03-18 00:00:00`'],
+        ];
+    }
+
+    /**
      * @dataProvider fetchSqlIgnoreUpdateDataProvider
      * @param bool $ignore
      * @param bool $update
