@@ -123,14 +123,11 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     public function testAddCallsWriteWhenExceedsBatchSize()
     {
-        /** @var \Phlib\DbHelper\BulkInsert|\PHPUnit_Framework_MockObject_MockObject $inserter */
-        $inserter = $this->getMockBuilder(BulkInsert::class)
-            ->setConstructorArgs([$this->adapter, 'table_name', ['field1'], [], ['batchSize' => 1]])
-            ->setMethods(['write'])
-            ->getMock();
+        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], ['batchSize' => 1]);
 
-        $inserter->expects(static::once())
-            ->method('write');
+        $this->adapter->expects(static::once())
+            ->method('execute')
+            ->willReturn(1);
 
         $inserter->add(['field1' => 'foo']);
     }

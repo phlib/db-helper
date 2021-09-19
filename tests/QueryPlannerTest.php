@@ -20,11 +20,8 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $pdoStatement = $this->createMock(\PDOStatement::class);
-
         $this->adapter = $this->createMock(Adapter::class);
-        $this->adapter->method('prepare')
-            ->willReturn($pdoStatement);
+
         parent::setUp();
     }
 
@@ -50,13 +47,17 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ['rows' => $row3]
         ];
 
-        /** @var QueryPlanner|\PHPUnit_Framework_MockObject_MockObject $planner */
-        $planner = $this->getMockBuilder(QueryPlanner::class)
-            ->setConstructorArgs([$this->adapter, 'SELECT'])
-            ->setMethods(['getPlan'])
-            ->getMock();
-        $planner->method('getPlan')
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+
+        $this->adapter->expects(static::once())
+            ->method('query')
+            ->willReturn($pdoStatement);
+
+        $pdoStatement->expects(static::once())
+            ->method('fetchAll')
             ->willReturn($plan);
+
+        $planner = new QueryPlanner($this->adapter, 'SELECT');
 
         $expected = $row1 * $row2 * $row3;
         static::assertEquals($expected, $planner->getNumberOfRowsInspected());
@@ -71,13 +72,17 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ['rows' => $row2]
         ];
 
-        /** @var QueryPlanner|\PHPUnit_Framework_MockObject_MockObject $planner */
-        $planner = $this->getMockBuilder(QueryPlanner::class)
-            ->setConstructorArgs([$this->adapter, 'SELECT'])
-            ->setMethods(['getPlan'])
-            ->getMock();
-        $planner->method('getPlan')
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+
+        $this->adapter->expects(static::once())
+            ->method('query')
+            ->willReturn($pdoStatement);
+
+        $pdoStatement->expects(static::once())
+            ->method('fetchAll')
             ->willReturn($plan);
+
+        $planner = new QueryPlanner($this->adapter, 'SELECT');
 
         static::assertInternalType('integer', $planner->getNumberOfRowsInspected());
     }
