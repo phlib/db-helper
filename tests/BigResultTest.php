@@ -5,6 +5,7 @@ namespace Phlib\DbHelper\Tests;
 use Phlib\DbHelper\BigResult;
 use Phlib\DbHelper\Exception\InvalidArgumentException;
 use Phlib\Db\Adapter;
+use Phlib\DbHelper\QueryPlanner;
 
 /**
  * BigResult Test
@@ -21,11 +22,7 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $pdoStatement = $this->createMock(\PDOStatement::class);
-
         $this->adapter = $this->createMock(Adapter::class);
-        $this->adapter->method('prepare')
-            ->willReturn($pdoStatement);
 
         parent::setUp();
     }
@@ -36,6 +33,10 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
         $this->adapter->expects(static::once())
             ->method('query')
             ->with(static::stringContains("long_query_time=$queryTime"));
+
+        $this->adapter->expects(static::once())
+            ->method('prepare')
+            ->willReturn($this->createMock(\PDOStatement::class));
 
         (new BigResult($this->adapter, ['long_query_time' => $queryTime]))
             ->query('SELECT');
@@ -48,6 +49,10 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
             ->method('query')
             ->with(static::stringContains("net_write_timeout=$writeTimeout"));
 
+        $this->adapter->expects(static::once())
+            ->method('prepare')
+            ->willReturn($this->createMock(\PDOStatement::class));
+
         (new BigResult($this->adapter, ['net_write_timeout' => $writeTimeout]))
             ->query('SELECT');
     }
@@ -57,6 +62,10 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
         $this->adapter->expects(static::once())
             ->method('disableBuffering');
 
+        $this->adapter->expects(static::once())
+            ->method('prepare')
+            ->willReturn($this->createMock(\PDOStatement::class));
+
         (new BigResult($this->adapter))->query('SELECT');
     }
 
@@ -64,23 +73,58 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
     {
         $bigResult = (new BigResult($this->adapter));
 
-        static::assertInstanceOf(\PDOStatement::class, $bigResult->query('SELECT'));
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+
+        $this->adapter->expects(static::once())
+            ->method('prepare')
+            ->willReturn($pdoStatement);
+
+        static::assertSame($pdoStatement, $bigResult->query('SELECT'));
     }
 
     public function testCheckForInspectedRowLimitOnSuccess()
     {
-        /** @var BigResult|\PHPUnit_Framework_MockObject_MockObject $bigResult */
-        $bigResult = $this->getMockBuilder(BigResult::class)
-            ->setConstructorArgs([$this->adapter])
-            ->setMethods(['getInspectedRows'])
-            ->getMock();
-        $bigResult->method('getInspectedRows')
-            ->willReturn(5);
+        $select = 'SELECT ' . rand();
+        $bind = [
+            sha1(uniqid()),
+        ];
 
+        $queryPlanner = $this->createMock(QueryPlanner::class);
+        $queryPlanner->expects($this->once())
+            ->method('getNumberOfRowsInspected')
+            ->will($this->returnValue(5));
+
+        $queryPlannerFactory = function (
+            Adapter $adapterPass,
+            $selectPass,
+            array $bindPass = []
+        ) use (
+            $queryPlanner,
+            $select,
+            $bind
+        ) {
+            $this->assertSame($this->adapter, $adapterPass);
+            $this->assertSame($select, $selectPass);
+            $this->assertSame($bind, $bindPass);
+            return $queryPlanner;
+        };
+
+        $bigResult = new BigResult($this->adapter, [], $queryPlannerFactory);
         $this->adapter->expects(static::once())
-            ->method('query');
+            ->method('query')
+            ->with(static::stringStartsWith('SET @@long_query_time='));
 
-        $bigResult->query('SELECT', [], 10);
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+        $this->adapter->expects(static::once())
+            ->method('prepare')
+            ->with($select)
+            ->willReturn($pdoStatement);
+
+        $pdoStatement->expects(static::once())
+            ->method('execute')
+            ->with($bind);
+
+        $bigResult->query($select, $bind, 10);
     }
 
     /**
@@ -88,19 +132,49 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckForInspectedRowLimitOnFailure()
     {
-        /** @var BigResult|\PHPUnit_Framework_MockObject_MockObject $bigResult */
-        $bigResult = $this->getMockBuilder(BigResult::class)
-            ->setConstructorArgs([$this->adapter])
-            ->setMethods(['getInspectedRows'])
-            ->getMock();
-        $bigResult->method('getInspectedRows')
-            ->willReturn(10);
+        $select = 'SELECT ' . rand();
+        $bind = [
+            sha1(uniqid()),
+        ];
 
-        $bigResult->query('SELECT', [], 5);
+        $queryPlanner = $this->createMock(QueryPlanner::class);
+        $queryPlanner->expects($this->once())
+            ->method('getNumberOfRowsInspected')
+            ->will($this->returnValue(10));
+
+        $queryPlannerFactory = function (
+            Adapter $adapterPass,
+            $selectPass,
+            array $bindPass = []
+        ) use (
+            $queryPlanner,
+            $select,
+            $bind
+        ) {
+            $this->assertSame($this->adapter, $adapterPass);
+            $this->assertSame($select, $selectPass);
+            $this->assertSame($bind, $bindPass);
+            return $queryPlanner;
+        };
+
+        $bigResult = new BigResult($this->adapter, [], $queryPlannerFactory);
+        $this->adapter->expects(static::never())
+            ->method('query');
+
+        $this->adapter->expects(static::never())
+            ->method('prepare');
+
+        $bigResult->query($select, $bind, 5);
     }
 
     public function testStaticExecuteReturnsStatement()
     {
-        static::assertInstanceOf(\PDOStatement::class, BigResult::execute($this->adapter, 'SELECT'));
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+
+        $this->adapter->expects(static::once())
+            ->method('prepare')
+            ->willReturn($pdoStatement);
+
+        static::assertSame($pdoStatement, BigResult::execute($this->adapter, 'SELECT'));
     }
 }
