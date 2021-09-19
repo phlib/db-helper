@@ -23,25 +23,20 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
 
-        $this->adapter = $this->getMockBuilder(Adapter::class)->getMock();
-        $this->adapter->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
-        parent::setUp();
-    }
+        $this->adapter = $this->createMock(Adapter::class);
+        $this->adapter->method('prepare')
+            ->willReturn($pdoStatement);
 
-    public function tearDown()
-    {
-        parent::tearDown();
-        $this->adapter = null;
+        parent::setUp();
     }
 
     public function testQueryIsSetupForLongQueryTime()
     {
         $queryTime = 123;
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('query')
-            ->with($this->stringContains("long_query_time=$queryTime"));
+            ->with(static::stringContains("long_query_time=$queryTime"));
+
         (new BigResult($this->adapter, ['long_query_time' => $queryTime]))
             ->query('SELECT');
     }
@@ -49,24 +44,27 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
     public function testQueryIsSetupForWriteTimeout()
     {
         $writeTimeout = 123;
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('query')
-            ->with($this->stringContains("net_write_timeout=$writeTimeout"));
+            ->with(static::stringContains("net_write_timeout=$writeTimeout"));
+
         (new BigResult($this->adapter, ['net_write_timeout' => $writeTimeout]))
             ->query('SELECT');
     }
 
     public function testQueryDisablesBuffering()
     {
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('disableBuffering');
+
         (new BigResult($this->adapter))->query('SELECT');
     }
 
     public function testQueryReturnsStatement()
     {
         $bigResult = (new BigResult($this->adapter));
-        $this->assertInstanceOf(\PDOStatement::class, $bigResult->query('SELECT'));
+
+        static::assertInstanceOf(\PDOStatement::class, $bigResult->query('SELECT'));
     }
 
     public function testCheckForInspectedRowLimitOnSuccess()
@@ -76,11 +74,12 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->adapter])
             ->setMethods(['getInspectedRows'])
             ->getMock();
-        $bigResult->expects($this->any())
-            ->method('getInspectedRows')
-            ->will($this->returnValue(5));
-        $this->adapter->expects($this->once())
+        $bigResult->method('getInspectedRows')
+            ->willReturn(5);
+
+        $this->adapter->expects(static::once())
             ->method('query');
+
         $bigResult->query('SELECT', [], 10);
     }
 
@@ -94,14 +93,14 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->adapter])
             ->setMethods(['getInspectedRows'])
             ->getMock();
-        $bigResult->expects($this->any())
-            ->method('getInspectedRows')
-            ->will($this->returnValue(10));
+        $bigResult->method('getInspectedRows')
+            ->willReturn(10);
+
         $bigResult->query('SELECT', [], 5);
     }
 
     public function testStaticExecuteReturnsStatement()
     {
-        $this->assertInstanceOf(\PDOStatement::class, BigResult::execute($this->adapter, 'SELECT'));
+        static::assertInstanceOf(\PDOStatement::class, BigResult::execute($this->adapter, 'SELECT'));
     }
 }

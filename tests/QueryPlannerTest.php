@@ -22,26 +22,20 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
 
-        $this->adapter = $this->getMockBuilder(Adapter::class)->getMock();
-        $this->adapter->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
+        $this->adapter = $this->createMock(Adapter::class);
+        $this->adapter->method('prepare')
+            ->willReturn($pdoStatement);
         parent::setUp();
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-        $this->adapter = null;
     }
 
     public function testGetPlanDoesExplain()
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('query')
-            ->with($this->stringContains('EXPLAIN', true))
-            ->will($this->returnValue($pdoStatement));
+            ->with(static::stringContains('EXPLAIN', true))
+            ->willReturn($pdoStatement);
+
         (new QueryPlanner($this->adapter, 'SELECT'))->getPlan();
     }
 
@@ -61,12 +55,11 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->adapter, 'SELECT'])
             ->setMethods(['getPlan'])
             ->getMock();
-        $planner->expects($this->any())
-            ->method('getPlan')
-            ->will($this->returnValue($plan));
+        $planner->method('getPlan')
+            ->willReturn($plan);
 
         $expected = $row1 * $row2 * $row3;
-        $this->assertEquals($expected, $planner->getNumberOfRowsInspected());
+        static::assertEquals($expected, $planner->getNumberOfRowsInspected());
     }
 
     public function testGetNumberOfRowsInspectedDoesNotExceedMaxInt()
@@ -83,10 +76,9 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ->setConstructorArgs([$this->adapter, 'SELECT'])
             ->setMethods(['getPlan'])
             ->getMock();
-        $planner->expects($this->any())
-            ->method('getPlan')
-            ->will($this->returnValue($plan));
+        $planner->method('getPlan')
+            ->willReturn($plan);
 
-        $this->assertInternalType('integer', $planner->getNumberOfRowsInspected());
+        static::assertInternalType('integer', $planner->getNumberOfRowsInspected());
     }
 }
