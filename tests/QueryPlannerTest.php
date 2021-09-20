@@ -20,28 +20,19 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $pdoStatement = $this->createMock(\PDOStatement::class);
+        $this->adapter = $this->createMock(Adapter::class);
 
-        $this->adapter = $this->getMockBuilder(Adapter::class)->getMock();
-        $this->adapter->expects($this->any())
-            ->method('prepare')
-            ->will($this->returnValue($pdoStatement));
         parent::setUp();
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-        $this->adapter = null;
     }
 
     public function testGetPlanDoesExplain()
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('query')
-            ->with($this->stringContains('EXPLAIN', true))
-            ->will($this->returnValue($pdoStatement));
+            ->with(static::stringContains('EXPLAIN', true))
+            ->willReturn($pdoStatement);
+
         (new QueryPlanner($this->adapter, 'SELECT'))->getPlan();
     }
 
@@ -56,17 +47,20 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ['rows' => $row3]
         ];
 
-        /** @var QueryPlanner|\PHPUnit_Framework_MockObject_MockObject $planner */
-        $planner = $this->getMockBuilder(QueryPlanner::class)
-            ->setConstructorArgs([$this->adapter, 'SELECT'])
-            ->setMethods(['getPlan'])
-            ->getMock();
-        $planner->expects($this->any())
-            ->method('getPlan')
-            ->will($this->returnValue($plan));
+        $pdoStatement = $this->createMock(\PDOStatement::class);
+
+        $this->adapter->expects(static::once())
+            ->method('query')
+            ->willReturn($pdoStatement);
+
+        $pdoStatement->expects(static::once())
+            ->method('fetchAll')
+            ->willReturn($plan);
+
+        $planner = new QueryPlanner($this->adapter, 'SELECT');
 
         $expected = $row1 * $row2 * $row3;
-        $this->assertEquals($expected, $planner->getNumberOfRowsInspected());
+        static::assertEquals($expected, $planner->getNumberOfRowsInspected());
     }
 
     public function testGetNumberOfRowsInspectedDoesNotExceedMaxInt()
@@ -78,15 +72,18 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
             ['rows' => $row2]
         ];
 
-        /** @var QueryPlanner|\PHPUnit_Framework_MockObject_MockObject $planner */
-        $planner = $this->getMockBuilder(QueryPlanner::class)
-            ->setConstructorArgs([$this->adapter, 'SELECT'])
-            ->setMethods(['getPlan'])
-            ->getMock();
-        $planner->expects($this->any())
-            ->method('getPlan')
-            ->will($this->returnValue($plan));
+        $pdoStatement = $this->createMock(\PDOStatement::class);
 
-        $this->assertInternalType('integer', $planner->getNumberOfRowsInspected());
+        $this->adapter->expects(static::once())
+            ->method('query')
+            ->willReturn($pdoStatement);
+
+        $pdoStatement->expects(static::once())
+            ->method('fetchAll')
+            ->willReturn($plan);
+
+        $planner = new QueryPlanner($this->adapter, 'SELECT');
+
+        static::assertInternalType('integer', $planner->getNumberOfRowsInspected());
     }
 }

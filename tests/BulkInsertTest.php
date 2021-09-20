@@ -32,12 +32,6 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         parent::setUp();
     }
 
-    public function tearDown()
-    {
-        parent::tearDown();
-        $this->adapter = null;
-    }
-
     /**
      * @dataProvider fetchSqlQuotesDataProvider
      * @param mixed $value
@@ -55,7 +49,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
         $expectedSql = "VALUES ({$expected})";
 
-        $this->assertContains($expectedSql, $actual);
+        static::assertContains($expectedSql, $actual);
     }
 
     public function fetchSqlQuotesDataProvider()
@@ -99,16 +93,16 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
         $needle = 'INSERT IGNORE INTO';
         if ($ignore && !$update) {
-            $this->assertContains($needle, $actual);
+            static::assertContains($needle, $actual);
         } else {
-            $this->assertNotContains($needle, $actual);
+            static::assertNotContains($needle, $actual);
         }
 
         $needle = 'ON DUPLICATE KEY UPDATE';
         if ($update) {
-            $this->assertContains($needle, $actual);
+            static::assertContains($needle, $actual);
         } else {
-            $this->assertNotContains($needle, $actual);
+            static::assertNotContains($needle, $actual);
         }
     }
 
@@ -124,28 +118,25 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     public function testFetchSqlReturnsFalseWhenNoRows()
     {
-        $this->assertFalse((new BulkInsert($this->adapter, 'table', ['field']))->fetchSql());
+        static::assertFalse((new BulkInsert($this->adapter, 'table', ['field']))->fetchSql());
     }
 
     public function testAddCallsWriteWhenExceedsBatchSize()
     {
-        /** @var \Phlib\DbHelper\BulkInsert|\PHPUnit_Framework_MockObject_MockObject $inserter */
-        $inserter = $this->getMockBuilder(BulkInsert::class)
-            ->setConstructorArgs([$this->adapter, 'table_name', ['field1'], [], ['batchSize' => 1]])
-            ->setMethods(['write'])
-            ->getMock();
+        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], ['batchSize' => 1]);
 
-        $inserter->expects($this->once())
-            ->method('write');
+        $this->adapter->expects(static::once())
+            ->method('execute')
+            ->willReturn(1);
 
         $inserter->add(['field1' => 'foo']);
     }
 
     public function testWriteCallsAdapterExecute()
     {
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('execute')
-            ->will($this->returnValue(1));
+            ->willReturn(1);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
         $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
@@ -154,7 +145,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteReturnsEarlyWhenNoRows()
     {
-        $this->adapter->expects($this->never())
+        $this->adapter->expects(static::never())
             ->method('execute');
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
@@ -163,9 +154,9 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteDoesNotWriteTheSameRows()
     {
-        $this->adapter->expects($this->once())
+        $this->adapter->expects(static::once())
             ->method('execute')
-            ->will($this->returnValue(1));
+            ->willReturn(1);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
         $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
@@ -175,11 +166,11 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     public function testWriteDetectsDeadlockAndHandlesIt()
     {
-        $this->adapter->expects($this->exactly(2))
+        $this->adapter->expects(static::exactly(2))
             ->method('execute')
-            ->will($this->onConsecutiveCalls(
-                $this->throwException(new RuntimeException('Deadlock found when trying to get lock')),
-                $this->returnValue(1)
+            ->will(static::onConsecutiveCalls(
+                static::throwException(new RuntimeException('Deadlock found when trying to get lock')),
+                static::returnValue(1)
             ));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
@@ -192,9 +183,8 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
      */
     public function testWriteAllowsNonDeadlockErrorsToBubble()
     {
-        $this->adapter->expects($this->any())
-            ->method('execute')
-            ->will($this->throwException(new RuntimeException('Some other foo exception')));
+        $this->adapter->method('execute')
+            ->will(static::throwException(new RuntimeException('Some other foo exception')));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
         $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
@@ -210,7 +200,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             'pending' => 0,
         ];
         $inserter = new BulkInsert($this->adapter, 'table', ['field1']);
-        $this->assertEquals($expected, $inserter->fetchStats($flush = false));
+        static::assertEquals($expected, $inserter->fetchStats($flush = false));
     }
 
     public function testFetchStatsOnInitialConstructWithFlush()
@@ -222,7 +212,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             'pending' => 0,
         ];
         $inserter = new BulkInsert($this->adapter, 'table', ['field1']);
-        $this->assertEquals($expected, $inserter->fetchStats($flush = true));
+        static::assertEquals($expected, $inserter->fetchStats($flush = true));
     }
 
     /**
@@ -236,9 +226,8 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
     public function testFetchStatsIncrements($expected, $statistic, $noOfInserts, $noOfUpdates, $withFlush)
     {
         $affectedRows = ($noOfUpdates * 2) + $noOfInserts;
-        $this->adapter->expects($this->any())
-            ->method('execute')
-            ->will($this->returnValue($affectedRows));
+        $this->adapter->method('execute')
+            ->willReturn($affectedRows);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1'], []);
         $totalRows = $noOfInserts + $noOfUpdates;
@@ -247,7 +236,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         }
 
         $stats = $inserter->fetchStats($withFlush);
-        $this->assertEquals($expected, $stats[$statistic]);
+        static::assertEquals($expected, $stats[$statistic]);
     }
 
     public function fetchStatsIncrementsDataProvider()
@@ -290,9 +279,8 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
 
     public function testClearStats()
     {
-        $this->adapter->expects($this->any())
-            ->method('execute')
-            ->will($this->returnValue(1));
+        $this->adapter->method('execute')
+            ->willReturn(1);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1'], []);
         $inserter->add(['field1' => 'foo']);
@@ -303,8 +291,8 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             'updated' => 0,
             'pending' => 0,
         ];
-        $this->assertNotEquals($expected, $inserter->fetchStats(true));
+        static::assertNotEquals($expected, $inserter->fetchStats(true));
         $inserter->clearStats();
-        $this->assertEquals($expected, $inserter->fetchStats(true));
+        static::assertEquals($expected, $inserter->fetchStats(true));
     }
 }

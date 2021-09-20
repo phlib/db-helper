@@ -22,19 +22,32 @@ class BigResult
     protected $options;
 
     /**
+     * @var \Closure
+     */
+    private $queryPlannerFactory;
+
+    /**
      * @param Adapter $adapter
      * @param array $options {
      *     @var int $long_query_time   Default 7200
      *     @var int $net_write_timeout Default 7200
      * }
+     * @internal @param \Closure Used for DI in tests; not expected to be used in production. Not part of BC promise.
      */
-    public function __construct(Adapter $adapter, array $options = [])
+    public function __construct(Adapter $adapter, array $options = [], \Closure $queryPlannerFactory = null)
     {
         $this->adapter = $adapter;
         $this->options = $options + [
             'long_query_time'   => 7200,
             'net_write_timeout' => 7200
         ];
+
+        if ($queryPlannerFactory === null) {
+            $queryPlannerFactory = function (Adapter $adapter, $select, array $bind = []) {
+                return new QueryPlanner($adapter, $select, $bind);
+            };
+        }
+        $this->queryPlannerFactory = $queryPlannerFactory;
     }
 
     /**
@@ -86,7 +99,9 @@ class BigResult
      */
     protected function getInspectedRows($select, array $bind)
     {
-        return (new QueryPlanner($this->adapter, $select, $bind))
+        // @todo php70 Use uniform variable syntax to skip local variable
+        $queryPlannerFactory = $this->queryPlannerFactory;
+        return $queryPlannerFactory($this->adapter, $select, $bind)
             ->getNumberOfRowsInspected();
     }
 }
