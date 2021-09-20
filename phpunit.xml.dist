@@ -4,6 +4,14 @@
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutOutputDuringTests="true"
          colors="true">
+    <php>
+        <env name="INTEGRATION_ENABLED" value="0" />
+        <env name="INTEGRATION_HOST" value="127.0.0.1" />
+        <env name="INTEGRATION_PORT" value="3306" />
+        <env name="INTEGRATION_USERNAME" value="" />
+        <env name="INTEGRATION_PASSWORD" value="" />
+        <env name="INTEGRATION_DATABASE" value="test" />
+    </php>
     <testsuites>
         <testsuite name="Phlib Test Suite">
             <directory>tests</directory>
