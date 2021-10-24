@@ -4,6 +4,8 @@ namespace Phlib\DbHelper\Tests;
 
 use Phlib\Db\Adapter;
 use Phlib\DbHelper\QueryPlanner;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * QueryPlanner Test
@@ -11,10 +13,10 @@ use Phlib\DbHelper\QueryPlanner;
  * @package Phlib\DbHelper
  * @licence LGPL-3.0
  */
-class QueryPlannerTest extends \PHPUnit_Framework_TestCase
+class QueryPlannerTest extends TestCase
 {
     /**
-     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter|MockObject
      */
     protected $adapter;
 

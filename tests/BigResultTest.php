@@ -6,6 +6,8 @@ use Phlib\Db\Adapter;
 use Phlib\DbHelper\BigResult;
 use Phlib\DbHelper\Exception\InvalidArgumentException;
 use Phlib\DbHelper\QueryPlanner;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * BigResult Test
@@ -13,10 +15,10 @@ use Phlib\DbHelper\QueryPlanner;
  * @package Phlib\DbHelper
  * @licence LGPL-3.0
  */
-class BigResultTest extends \PHPUnit_Framework_TestCase
+class BigResultTest extends TestCase
 {
     /**
-     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter|MockObject
      */
     protected $adapter;
 
@@ -94,9 +96,9 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
         ];
 
         $queryPlanner = $this->createMock(QueryPlanner::class);
-        $queryPlanner->expects($this->once())
+        $queryPlanner->expects(static::once())
             ->method('getNumberOfRowsInspected')
-            ->will($this->returnValue(5));
+            ->willReturn(5);
 
         $queryPlannerFactory = function (
             Adapter $adapterPass,
@@ -107,9 +109,9 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
             $select,
             $bind
         ) {
-            $this->assertSame($this->adapter, $adapterPass);
-            $this->assertSame($select, $selectPass);
-            $this->assertSame($bind, $bindPass);
+            static::assertSame($this->adapter, $adapterPass);
+            static::assertSame($select, $selectPass);
+            static::assertSame($bind, $bindPass);
             return $queryPlanner;
         };
 
@@ -131,20 +133,19 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
         $bigResult->query($select, $bind, 10);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCheckForInspectedRowLimitOnFailure()
     {
+        $this->expectException(InvalidArgumentException::class);
+
         $select = 'SELECT ' . rand();
         $bind = [
             sha1(uniqid()),
         ];
 
         $queryPlanner = $this->createMock(QueryPlanner::class);
-        $queryPlanner->expects($this->once())
+        $queryPlanner->expects(static::once())
             ->method('getNumberOfRowsInspected')
-            ->will($this->returnValue(10));
+            ->willReturn(10);
 
         $queryPlannerFactory = function (
             Adapter $adapterPass,
@@ -155,9 +156,9 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
             $select,
             $bind
         ) {
-            $this->assertSame($this->adapter, $adapterPass);
-            $this->assertSame($select, $selectPass);
-            $this->assertSame($bind, $bindPass);
+            static::assertSame($this->adapter, $adapterPass);
+            static::assertSame($select, $selectPass);
+            static::assertSame($bind, $bindPass);
             return $queryPlanner;
         };
 

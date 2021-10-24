@@ -6,6 +6,8 @@ use Phlib\Db\Adapter;
 use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
 use Phlib\Db\SqlFragment;
 use Phlib\DbHelper\BulkInsert;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * BulkInsert Test
@@ -13,10 +15,10 @@ use Phlib\DbHelper\BulkInsert;
  * @package Phlib\DbHelper
  * @licence LGPL-3.0
  */
-class BulkInsertTest extends \PHPUnit_Framework_TestCase
+class BulkInsertTest extends TestCase
 {
     /**
-     * @var Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter|MockObject
      */
     protected $adapter;
 
@@ -290,13 +292,12 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $inserter->write();
     }
 
-    /**
-     * @expectedException \Phlib\Db\Exception\RuntimeException
-     */
     public function testWriteAllowsNonDeadlockErrorsToBubble()
     {
+        $this->expectException(DbRuntimeException::class);
+
         $this->adapter->method('execute')
-            ->will(static::throwException(new DbRuntimeException('Some other foo exception')));
+            ->willThrowException(new DbRuntimeException('Some other foo exception'));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
         $inserter->add([
