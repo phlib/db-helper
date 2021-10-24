@@ -16,6 +16,10 @@
         {
             "name": "Chris Minett",
             "role": "developer"
+        },
+        {
+            "name": "Phlib Team & Contributors",
+            "homepage": "https://github.com/phlib/db-helper-replication/contributors"
         }
     ],
     "require": {
