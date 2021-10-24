@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests\Integration;
 
 use Phlib\Db\Adapter;
@@ -22,7 +24,7 @@ abstract class IntegrationTestCase extends TestCase
      */
     protected $schemaTableQuoted;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if ((bool)getenv('INTEGRATION_ENABLED') !== true) {
             static::markTestSkipped();
@@ -39,7 +41,7 @@ abstract class IntegrationTestCase extends TestCase
         ]);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if (isset($this->schemaTableQuoted)) {
             $this->adapter->query("DROP TABLE {$this->schemaTableQuoted}");
@@ -48,7 +50,7 @@ abstract class IntegrationTestCase extends TestCase
         parent::tearDown();
     }
 
-    final protected function createTestTable()
+    final protected function createTestTable(): void
     {
         $tableName = 'phlib_dbhelper_test_' . substr(sha1(uniqid()), 0, 10);
         $this->schemaTable = getenv('INTEGRATION_DATABASE') . '.' . $tableName;

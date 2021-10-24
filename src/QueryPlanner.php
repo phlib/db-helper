@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper;
 
 use Phlib\Db\Adapter;
@@ -25,30 +27,21 @@ class QueryPlanner
      */
     protected $bind;
 
-    /**
-     * @param string $select
-     */
-    public function __construct(Adapter $adapter, $select, array $bind = [])
+    public function __construct(Adapter $adapter, string $select, array $bind = [])
     {
         $this->adapter = $adapter;
         $this->select = $select;
         $this->bind = $bind;
     }
 
-    /**
-     * @return array
-     */
-    public function getPlan()
+    public function getPlan(): array
     {
         return $this->adapter
             ->query("EXPLAIN {$this->select}", $this->bind)
             ->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    /**
-     * @return int
-     */
-    public function getNumberOfRowsInspected()
+    public function getNumberOfRowsInspected(): int
     {
         $inspectedRows = 1;
         foreach ($this->getPlan() as $analysis) {

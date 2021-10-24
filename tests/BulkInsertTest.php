@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests;
 
 use Phlib\Db\Adapter;
@@ -22,11 +24,11 @@ class BulkInsertTest extends TestCase
      */
     protected $adapter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->adapter = $this->createMock(Adapter::class);
 
-        $quoteHandler = new Adapter\QuoteHandler(function ($value) {
+        $quoteHandler = new Adapter\QuoteHandler(function ($value): string {
             return "`{$value}`";
         });
         $this->adapter->method('quote')
@@ -37,10 +39,8 @@ class BulkInsertTest extends TestCase
 
     /**
      * @dataProvider dataSqlQuotes
-     * @param mixed $value
-     * @param string $expected
      */
-    public function testSqlQuotes($value, $expected)
+    public function testSqlQuotes($value, string $expected): void
     {
         $table = 'test_table';
         $insertFields = ['field'];
@@ -57,7 +57,7 @@ class BulkInsertTest extends TestCase
             ->write();
     }
 
-    public function dataSqlQuotes()
+    public function dataSqlQuotes(): array
     {
         return [
             ['string', '`string`'],
@@ -72,7 +72,7 @@ class BulkInsertTest extends TestCase
         ];
     }
 
-    public function testSqlHandlesMultipleFieldsAndValues()
+    public function testSqlHandlesMultipleFieldsAndValues(): void
     {
         $table = sha1(uniqid());
         $fields = [
@@ -116,8 +116,9 @@ class BulkInsertTest extends TestCase
 
     /**
      * @dataProvider dataSqlUpdateExpression
+     * @param mixed $updateValue
      */
-    public function testSqlUpdateExpression($updateValue, $expected)
+    public function testSqlUpdateExpression($updateValue, string $expected): void
     {
         $table = sha1(uniqid());
         $fields = [
@@ -151,14 +152,14 @@ class BulkInsertTest extends TestCase
             ->write();
     }
 
-    public function dataSqlUpdateExpression()
+    public function dataSqlUpdateExpression(): array
     {
         $int = rand();
         $string = sha1(uniqid());
         $sql = new SqlFragment('Some SQL expression');
 
         return [
-            'int-not-quoted' => [$int, $int],
+            'int-not-quoted' => [$int, (string)$int],
             'string-quoted' => [$string, "`{$string}`"],
             'sql-as-given' => [$sql, (string)$sql],
         ];
@@ -166,10 +167,8 @@ class BulkInsertTest extends TestCase
 
     /**
      * @dataProvider dataSqlIgnoreUpdate
-     * @param bool $ignore
-     * @param bool $update
      */
-    public function testSqlIgnoreUpdate($ignore, $update)
+    public function testSqlIgnoreUpdate(bool $ignore, bool $update): void
     {
         $table = 'test_table';
         $insertFields = ['field'];
@@ -185,7 +184,7 @@ class BulkInsertTest extends TestCase
             $inserter->insertIgnoreDisabled();
         }
 
-        $sqlTest = function ($actual) use ($ignore, $update) {
+        $sqlTest = function (string $actual) use ($ignore, $update) {
             $needle = 'INSERT IGNORE INTO';
             if ($ignore && !$update) {
                 static::assertContains($needle, $actual);
@@ -212,7 +211,7 @@ class BulkInsertTest extends TestCase
             ->write();
     }
 
-    public function dataSqlIgnoreUpdate()
+    public function dataSqlIgnoreUpdate(): array
     {
         return [
             [true, true],
@@ -222,7 +221,7 @@ class BulkInsertTest extends TestCase
         ];
     }
 
-    public function testAddCallsWriteWhenExceedsBatchSize()
+    public function testAddCallsWriteWhenExceedsBatchSize(): void
     {
         $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], [
             'batchSize' => 1,
@@ -237,7 +236,7 @@ class BulkInsertTest extends TestCase
         ]);
     }
 
-    public function testWriteCallsAdapterExecute()
+    public function testWriteCallsAdapterExecute(): void
     {
         $this->adapter->expects(static::once())
             ->method('execute')
@@ -251,7 +250,7 @@ class BulkInsertTest extends TestCase
         $inserter->write();
     }
 
-    public function testWriteReturnsEarlyWhenNoRows()
+    public function testWriteReturnsEarlyWhenNoRows(): void
     {
         $this->adapter->expects(static::never())
             ->method('execute');
@@ -260,7 +259,7 @@ class BulkInsertTest extends TestCase
         $inserter->write();
     }
 
-    public function testWriteDoesNotWriteTheSameRows()
+    public function testWriteDoesNotWriteTheSameRows(): void
     {
         $this->adapter->expects(static::once())
             ->method('execute')
@@ -275,7 +274,7 @@ class BulkInsertTest extends TestCase
         $inserter->write();
     }
 
-    public function testWriteDetectsDeadlockAndHandlesIt()
+    public function testWriteDetectsDeadlockAndHandlesIt(): void
     {
         $this->adapter->expects(static::exactly(2))
             ->method('execute')
@@ -292,7 +291,7 @@ class BulkInsertTest extends TestCase
         $inserter->write();
     }
 
-    public function testWriteAllowsNonDeadlockErrorsToBubble()
+    public function testWriteAllowsNonDeadlockErrorsToBubble(): void
     {
         $this->expectException(DbRuntimeException::class);
 
@@ -307,7 +306,7 @@ class BulkInsertTest extends TestCase
         $inserter->write();
     }
 
-    public function testFetchStatsOnInitialConstructWithoutFlush()
+    public function testFetchStatsOnInitialConstructWithoutFlush(): void
     {
         $expected = [
             'total' => 0,
@@ -319,7 +318,7 @@ class BulkInsertTest extends TestCase
         static::assertEquals($expected, $inserter->fetchStats($flush = false));
     }
 
-    public function testFetchStatsOnInitialConstructWithFlush()
+    public function testFetchStatsOnInitialConstructWithFlush(): void
     {
         $expected = [
             'total' => 0,
@@ -332,15 +331,15 @@ class BulkInsertTest extends TestCase
     }
 
     /**
-     * @param int $expected
-     * @param string $statistic
-     * @param int $noOfInserts
-     * @param int $noOfUpdates
-     * @param bool $withFlush
      * @dataProvider fetchStatsIncrementsDataProvider
      */
-    public function testFetchStatsIncrements($expected, $statistic, $noOfInserts, $noOfUpdates, $withFlush)
-    {
+    public function testFetchStatsIncrements(
+        int $expected,
+        string $statistic,
+        int $noOfInserts,
+        int $noOfUpdates,
+        bool $withFlush
+    ): void {
         $affectedRows = ($noOfUpdates * 2) + $noOfInserts;
         $this->adapter->method('execute')
             ->willReturn($affectedRows);
@@ -357,7 +356,7 @@ class BulkInsertTest extends TestCase
         static::assertEquals($expected, $stats[$statistic]);
     }
 
-    public function fetchStatsIncrementsDataProvider()
+    public function fetchStatsIncrementsDataProvider(): array
     {
         return [
             // total
@@ -395,7 +394,7 @@ class BulkInsertTest extends TestCase
         ];
     }
 
-    public function testClearStats()
+    public function testClearStats(): void
     {
         $this->adapter->method('execute')
             ->willReturn(1);

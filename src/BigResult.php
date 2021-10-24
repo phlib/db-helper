@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper;
 
 use Phlib\Db\Adapter;
@@ -42,31 +44,27 @@ class BigResult
         ];
 
         if ($queryPlannerFactory === null) {
-            $queryPlannerFactory = function (Adapter $adapter, $select, array $bind = []) {
+            $queryPlannerFactory = function (Adapter $adapter, string $select, array $bind = []): QueryPlanner {
                 return new QueryPlanner($adapter, $select, $bind);
             };
         }
         $this->queryPlannerFactory = $queryPlannerFactory;
     }
 
-    /**
-     * @param string $select
-     * @param null $rowLimit
-     * @return \PDOStatement
-     */
-    public static function execute(Adapter $adapter, $select, array $bind = [], $rowLimit = null)
-    {
-        return (new static($adapter))->query($select, $bind, $rowLimit);
+    public static function execute(
+        Adapter $adapter,
+        string $select,
+        array $bind = [],
+        int $rowLimit = null
+    ): \PDOStatement {
+        return (new static($adapter))
+            ->query($select, $bind, $rowLimit);
     }
 
     /**
      * Execute query and return the unbuffered statement.
-     *
-     * @param string $select
-     * @param int $inspectedRowLimit
-     * @return \PDOStatement
      */
-    public function query($select, array $bind = [], $inspectedRowLimit = null)
+    public function query(string $select, array $bind = [], int $inspectedRowLimit = null): \PDOStatement
     {
         if ($inspectedRowLimit !== null) {
             $inspectedRows = $this->getInspectedRows($select, $bind);
@@ -88,11 +86,7 @@ class BigResult
         return $stmt;
     }
 
-    /**
-     * @param string $select
-     * @return int
-     */
-    protected function getInspectedRows($select, array $bind)
+    protected function getInspectedRows(string $select, array $bind): int
     {
         return ($this->queryPlannerFactory)($this->adapter, $select, $bind)
             ->getNumberOfRowsInspected();

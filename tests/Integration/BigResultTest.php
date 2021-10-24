@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests\Integration;
 
 use Phlib\DbHelper\BigResult;
@@ -10,10 +12,7 @@ use Phlib\DbHelper\Exception\InvalidArgumentException;
  */
 class BigResultTest extends IntegrationTestCase
 {
-    /**
-     * @return array
-     */
-    public function dataExecuteAsInstance()
+    public function dataExecuteAsInstance(): array
     {
         return [
             'instance' => [true],
@@ -23,9 +22,8 @@ class BigResultTest extends IntegrationTestCase
 
     /**
      * @dataProvider dataExecuteAsInstance
-     * @param bool $executeAsInstance
      */
-    public function testBasicSelect($executeAsInstance)
+    public function testBasicSelect(bool $executeAsInstance): void
     {
         $this->createTestTable();
         $id = rand();
@@ -66,9 +64,8 @@ SQL;
 
     /**
      * @dataProvider dataExecuteAsInstance
-     * @param bool $executeAsInstance
      */
-    public function testInspectedRowsExceeded($executeAsInstance)
+    public function testInspectedRowsExceeded(bool $executeAsInstance): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage("Number of rows inspected exceeds '5'");

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests;
 
 use Phlib\Db\Adapter;
@@ -22,14 +24,14 @@ class BigResultTest extends TestCase
      */
     protected $adapter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->adapter = $this->createMock(Adapter::class);
 
         parent::setUp();
     }
 
-    public function testQueryIsSetupForLongQueryTime()
+    public function testQueryIsSetupForLongQueryTime(): void
     {
         $queryTime = 123;
         $this->adapter->expects(static::once())
@@ -46,7 +48,7 @@ class BigResultTest extends TestCase
             ->query('SELECT');
     }
 
-    public function testQueryIsSetupForWriteTimeout()
+    public function testQueryIsSetupForWriteTimeout(): void
     {
         $writeTimeout = 123;
         $this->adapter->expects(static::once())
@@ -63,7 +65,7 @@ class BigResultTest extends TestCase
             ->query('SELECT');
     }
 
-    public function testQueryDisablesBuffering()
+    public function testQueryDisablesBuffering(): void
     {
         $this->adapter->expects(static::once())
             ->method('disableBuffering');
@@ -75,7 +77,7 @@ class BigResultTest extends TestCase
         (new BigResult($this->adapter))->query('SELECT');
     }
 
-    public function testQueryReturnsStatement()
+    public function testQueryReturnsStatement(): void
     {
         $bigResult = (new BigResult($this->adapter));
 
@@ -88,7 +90,7 @@ class BigResultTest extends TestCase
         static::assertSame($pdoStatement, $bigResult->query('SELECT'));
     }
 
-    public function testCheckForInspectedRowLimitOnSuccess()
+    public function testCheckForInspectedRowLimitOnSuccess(): void
     {
         $select = 'SELECT ' . rand();
         $bind = [
@@ -102,13 +104,13 @@ class BigResultTest extends TestCase
 
         $queryPlannerFactory = function (
             Adapter $adapterPass,
-            $selectPass,
+            string $selectPass,
             array $bindPass = []
         ) use (
             $queryPlanner,
             $select,
             $bind
-        ) {
+        ): QueryPlanner {
             static::assertSame($this->adapter, $adapterPass);
             static::assertSame($select, $selectPass);
             static::assertSame($bind, $bindPass);
@@ -133,7 +135,7 @@ class BigResultTest extends TestCase
         $bigResult->query($select, $bind, 10);
     }
 
-    public function testCheckForInspectedRowLimitOnFailure()
+    public function testCheckForInspectedRowLimitOnFailure(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -149,13 +151,13 @@ class BigResultTest extends TestCase
 
         $queryPlannerFactory = function (
             Adapter $adapterPass,
-            $selectPass,
+            string $selectPass,
             array $bindPass = []
         ) use (
             $queryPlanner,
             $select,
             $bind
-        ) {
+        ): QueryPlanner {
             static::assertSame($this->adapter, $adapterPass);
             static::assertSame($select, $selectPass);
             static::assertSame($bind, $bindPass);
@@ -172,7 +174,7 @@ class BigResultTest extends TestCase
         $bigResult->query($select, $bind, 5);
     }
 
-    public function testStaticExecuteReturnsStatement()
+    public function testStaticExecuteReturnsStatement(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper;
 
 use Phlib\Db\Adapter;
@@ -67,14 +69,13 @@ class BulkInsert
     protected $totalUpdated = 0;
 
     /**
-     * @param string $table
      * @param array $options {
      *     @var int $batchSize Default 200
      * }
      */
     public function __construct(
         Adapter $adapter,
-        $table,
+        string $table,
         array $insertFields,
         array $updateFields = [],
         array $options = []
@@ -93,10 +94,8 @@ class BulkInsert
 
     /**
      * Sets the insert fields for the bulk statement.
-     *
-     * @return $this
      */
-    public function setInsertFields(array $fields)
+    public function setInsertFields(array $fields): self
     {
         $this->insertFields = $fields;
         return $this;
@@ -104,10 +103,8 @@ class BulkInsert
 
     /**
      * Sets the update fields for the bulk statement.
-     *
-     * @return $this
      */
-    public function setUpdateFields(array $fields)
+    public function setUpdateFields(array $fields): self
     {
         $this->updateFields = [];
         if (count($fields) > 0) {
@@ -129,10 +126,8 @@ class BulkInsert
      * Adds a row to the bulk insert. Row should be an indexed array matching
      * the order of the fields given. If the magic number is reached then it'll
      * automatically write the changes to the database.
-     *
-     * @return $this
      */
-    public function add(array $row)
+    public function add(array $row): self
     {
         if (count($row) == count($this->insertFields)) {
             $this->rows[] = $row;
@@ -145,10 +140,8 @@ class BulkInsert
 
     /**
      * Writes the changes so far to the database.
-     *
-     * @return $this
      */
-    public function write()
+    public function write(): self
     {
         $rowCount = count($this->rows);
         if ($rowCount == 0) {
@@ -177,10 +170,7 @@ class BulkInsert
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    private function fetchSql()
+    private function fetchSql(): string
     {
         // No need to check for non-zero row count.
         // This method is only called from write(), which has its own check for zero rows.
@@ -216,30 +206,24 @@ class BulkInsert
      *     'updated'  => 50,
      *     'pending'  => 0
      * )
-     *
-     * @param  boolean $flush
-     * @return array
      */
-    public function fetchStats($flush = true)
+    public function fetchStats(bool $flush = true): array
     {
-        if ((bool)$flush) {
+        if ($flush) {
             $this->write();
         }
-        $stats = [
+        return [
             'total' => $this->totalRows,
             'inserted' => $this->totalInserted,
             'updated' => $this->totalUpdated,
             'pending' => count($this->rows),
         ];
-        return $stats;
     }
 
     /**
      * Clear the currently recorded statistics.
-     *
-     * @return $this
      */
-    public function clearStats()
+    public function clearStats(): self
     {
         $this->totalRows = 0;
         $this->totalInserted = 0;
@@ -247,23 +231,13 @@ class BulkInsert
         return $this;
     }
 
-    /**
-     * Enable usage of INSERT INGORE
-     *
-     * @return $this
-     */
-    public function insertIgnoreEnabled()
+    public function insertIgnoreEnabled(): self
     {
         $this->insertIgnore = true;
         return $this;
     }
 
-    /**
-     * Disable usage of INSERT INGORE
-     *
-     * @return $this
-     */
-    public function insertIgnoreDisabled()
+    public function insertIgnoreDisabled(): self
     {
         $this->insertIgnore = false;
         return $this;

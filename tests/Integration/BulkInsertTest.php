@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests\Integration;
 
 use Phlib\Db\SqlFragment;
@@ -10,7 +12,7 @@ use Phlib\DbHelper\BulkInsert;
  */
 class BulkInsertTest extends IntegrationTestCase
 {
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->createTestTable();
 
@@ -65,7 +67,7 @@ SQL;
         static::assertSame($expectedRows, $stmt->fetchAll());
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->createTestTable();
 
@@ -125,7 +127,7 @@ SQL;
         static::assertSame($updateExpected, $stmtAfterUpdate->fetch());
     }
 
-    public function testIgnore()
+    public function testIgnore(): void
     {
         // Similar to testUpdate, but the value should NOT be changed
         $this->createTestTable();
@@ -189,7 +191,7 @@ SQL;
         static::assertSame($updateExpected, $stmtAfterUpdate->fetch());
     }
 
-    public function testUpdateExpressionValue()
+    public function testUpdateExpressionValue(): void
     {
         // Similar to testUpdate, but the value is set by the update expression, not to the given row value
         $this->createTestTable();
@@ -256,7 +258,7 @@ SQL;
         static::assertSame($updateExpected, $stmtAfterUpdate->fetch());
     }
 
-    public function testUpdateExpressionSql()
+    public function testUpdateExpressionSql(): void
     {
         // Similar to testUpdate, but the value is set by the update expression, not to the given row value
         $this->createTestTable();
