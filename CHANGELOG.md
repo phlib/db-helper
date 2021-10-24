@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.0.2] - 2021-10-24
 ### Fixed
-- BulkInsert: Catch `RuntimeException` from underlying *phlib/db* for deadlocks.
+- *BulkInsert*: Catch `RuntimeException` from underlying *phlib/db* for deadlocks.
   Migration from *phlib/db* mistakenly created a new `RuntimeException` class.
 
 ## [1.0.1] - 2017-04-19
