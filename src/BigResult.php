@@ -94,9 +94,7 @@ class BigResult
      */
     protected function getInspectedRows($select, array $bind)
     {
-        // @todo php70 Use uniform variable syntax to skip local variable
-        $queryPlannerFactory = $this->queryPlannerFactory;
-        return $queryPlannerFactory($this->adapter, $select, $bind)
+        return ($this->queryPlannerFactory)($this->adapter, $select, $bind)
             ->getNumberOfRowsInspected();
     }
 }
