@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.0.2] - 2021-10-24
 ### Fixed
 - BulkInsert: Catch `RuntimeException` from underlying *phlib/db* for deadlocks.
   Migration from *phlib/db* mistakenly created a new `RuntimeException` class.
