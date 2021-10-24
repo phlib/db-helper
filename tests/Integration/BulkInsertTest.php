@@ -148,7 +148,8 @@ SQL;
         ];
         $updateExpected = [
             'test_id' => (string)$id,
-            'char_col' => $text1, // Value should not be changed from initial value
+            // Value should not be changed from initial value
+            'char_col' => $text1,
         ];
 
         $selectSql = <<<SQL
@@ -212,7 +213,8 @@ SQL;
         ];
         $updateExpected = [
             'test_id' => (string)$id,
-            'char_col' => $text3, // Value should be set from the update expression
+            // Value should be set from the update expression
+            'char_col' => $text3,
         ];
 
         $selectSql = <<<SQL
@@ -278,7 +280,8 @@ SQL;
         ];
         $updateExpected = [
             'test_id' => (string)$id,
-            'char_col' => $text1 . $text3, // Value should be set from the update expression
+            // Value should be set from the update expression
+            'char_col' => $text1 . $text3,
         ];
 
         $selectSql = <<<SQL

@@ -2,10 +2,10 @@
 
 namespace Phlib\DbHelper\Tests;
 
+use Phlib\Db\Adapter;
+use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
 use Phlib\Db\SqlFragment;
 use Phlib\DbHelper\BulkInsert;
-use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
-use Phlib\Db\Adapter;
 
 /**
  * BulkInsert Test
@@ -25,7 +25,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $this->adapter = $this->createMock(Adapter::class);
 
         $quoteHandler = new Adapter\QuoteHandler(function ($value) {
-            return "`$value`";
+            return "`{$value}`";
         });
         $this->adapter->method('quote')
             ->willReturn($quoteHandler);
@@ -216,19 +216,23 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             [true, true],
             [true, false],
             [false, true],
-            [false, false]
+            [false, false],
         ];
     }
 
     public function testAddCallsWriteWhenExceedsBatchSize()
     {
-        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], ['batchSize' => 1]);
+        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], [
+            'batchSize' => 1,
+        ]);
 
         $this->adapter->expects(static::once())
             ->method('execute')
             ->willReturn(1);
 
-        $inserter->add(['field1' => 'foo']);
+        $inserter->add([
+            'field1' => 'foo',
+        ]);
     }
 
     public function testWriteCallsAdapterExecute()
@@ -238,7 +242,10 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ->willReturn(1);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
-        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->add([
+            'field1' => 'foo',
+            'field2' => 'bar',
+        ]);
         $inserter->write();
     }
 
@@ -258,7 +265,10 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ->willReturn(1);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
-        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->add([
+            'field1' => 'foo',
+            'field2' => 'bar',
+        ]);
         $inserter->write();
         $inserter->write();
     }
@@ -273,7 +283,10 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
-        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->add([
+            'field1' => 'foo',
+            'field2' => 'bar',
+        ]);
         $inserter->write();
     }
 
@@ -286,7 +299,10 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ->will(static::throwException(new DbRuntimeException('Some other foo exception')));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
-        $inserter->add(['field1' => 'foo', 'field2' => 'bar']);
+        $inserter->add([
+            'field1' => 'foo',
+            'field2' => 'bar',
+        ]);
         $inserter->write();
     }
 
@@ -331,7 +347,9 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $inserter = new BulkInsert($this->adapter, 'table', ['field1'], []);
         $totalRows = $noOfInserts + $noOfUpdates;
         for ($i = 0; $i < $totalRows; $i++) {
-            $inserter->add(['field1' => 'foo']);
+            $inserter->add([
+                'field1' => 'foo',
+            ]);
         }
 
         $stats = $inserter->fetchStats($withFlush);
@@ -382,7 +400,9 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ->willReturn(1);
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1'], []);
-        $inserter->add(['field1' => 'foo']);
+        $inserter->add([
+            'field1' => 'foo',
+        ]);
 
         $expected = [
             'total' => 0,

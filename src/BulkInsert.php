@@ -67,12 +67,7 @@ class BulkInsert
     protected $totalUpdated = 0;
 
     /**
-     * Constructor
-     *
-     * @param Adapter $adapter
-     * @param string  $table
-     * @param array $insertFields
-     * @param array $updateFields
+     * @param string $table
      * @param array $options {
      *     @var int $batchSize Default 200
      * }
@@ -84,11 +79,13 @@ class BulkInsert
         array $updateFields = [],
         array $options = []
     ) {
-        $options = $options + ['batchSize' => 200];
+        $options = $options + [
+            'batchSize' => 200,
+        ];
 
-        $this->adapter   = $adapter;
-        $this->table     = $table;
-        $this->batchSize = (integer)$options['batchSize'];
+        $this->adapter = $adapter;
+        $this->table = $table;
+        $this->batchSize = (int)$options['batchSize'];
 
         $this->setInsertFields($insertFields);
         $this->setUpdateFields($updateFields);
@@ -97,7 +94,6 @@ class BulkInsert
     /**
      * Sets the insert fields for the bulk statement.
      *
-     * @param  array $fields
      * @return $this
      */
     public function setInsertFields(array $fields)
@@ -109,7 +105,6 @@ class BulkInsert
     /**
      * Sets the update fields for the bulk statement.
      *
-     * @param  array $fields
      * @return $this
      */
     public function setUpdateFields(array $fields)
@@ -119,9 +114,9 @@ class BulkInsert
             $values = [];
             foreach ($fields as $key => $value) {
                 if (is_int($key)) {
-                    $values[] = "$value = VALUES($value)";
+                    $values[] = "{$value} = VALUES({$value})";
                 } else {
-                    $values[] = $this->adapter->quote()->into("$key = ?", $value);
+                    $values[] = $this->adapter->quote()->into("{$key} = ?", $value);
                 }
             }
             $this->updateFields = $values;
@@ -135,7 +130,6 @@ class BulkInsert
      * the order of the fields given. If the magic number is reached then it'll
      * automatically write the changes to the database.
      *
-     * @param  array $row
      * @return $this
      */
     public function add(array $row)
@@ -175,10 +169,10 @@ class BulkInsert
 
         $this->rows = [];
 
-        $updatedRows          = $affectedRows - $rowCount;
-        $this->totalRows     += $rowCount;
+        $updatedRows = $affectedRows - $rowCount;
+        $this->totalRows += $rowCount;
         $this->totalInserted += $rowCount - $updatedRows;
-        $this->totalUpdated  += $updatedRows;
+        $this->totalUpdated += $updatedRows;
 
         return $this;
     }
@@ -206,9 +200,9 @@ class BulkInsert
             $insert[] = 'IGNORE';
         }
         $insert[] = "INTO {$this->table}";
-        $insert[] = "(" . implode(', ', $this->insertFields) . ") VALUES";
+        $insert[] = '(' . implode(', ', $this->insertFields) . ') VALUES';
 
-        return trim(implode(' ', $insert) . " $values $update");
+        return trim(implode(' ', $insert) . " {$values} {$update}");
     }
 
     /**
@@ -228,14 +222,14 @@ class BulkInsert
      */
     public function fetchStats($flush = true)
     {
-        if ((boolean)$flush) {
+        if ((bool)$flush) {
             $this->write();
         }
         $stats = [
-            'total'    => $this->totalRows,
+            'total' => $this->totalRows,
             'inserted' => $this->totalInserted,
-            'updated'  => $this->totalUpdated,
-            'pending'  => count($this->rows)
+            'updated' => $this->totalUpdated,
+            'pending' => count($this->rows),
         ];
         return $stats;
     }
@@ -247,9 +241,9 @@ class BulkInsert
      */
     public function clearStats()
     {
-        $this->totalRows     = 0;
+        $this->totalRows = 0;
         $this->totalInserted = 0;
-        $this->totalUpdated  = 0;
+        $this->totalUpdated = 0;
         return $this;
     }
 

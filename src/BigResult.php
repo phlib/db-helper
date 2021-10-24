@@ -2,8 +2,8 @@
 
 namespace Phlib\DbHelper;
 
-use Phlib\DbHelper\Exception\InvalidArgumentException;
 use Phlib\Db\Adapter;
+use Phlib\DbHelper\Exception\InvalidArgumentException;
 
 /**
  * @package Phlib\DbHelper
@@ -27,7 +27,6 @@ class BigResult
     private $queryPlannerFactory;
 
     /**
-     * @param Adapter $adapter
      * @param array $options {
      *     @var int $long_query_time   Default 7200
      *     @var int $net_write_timeout Default 7200
@@ -38,8 +37,8 @@ class BigResult
     {
         $this->adapter = $adapter;
         $this->options = $options + [
-            'long_query_time'   => 7200,
-            'net_write_timeout' => 7200
+            'long_query_time' => 7200,
+            'net_write_timeout' => 7200,
         ];
 
         if ($queryPlannerFactory === null) {
@@ -51,9 +50,7 @@ class BigResult
     }
 
     /**
-     * @param Adapter $adapter
      * @param string $select
-     * @param array $bind
      * @param null $rowLimit
      * @return \PDOStatement
      */
@@ -66,7 +63,6 @@ class BigResult
      * Execute query and return the unbuffered statement.
      *
      * @param string $select
-     * @param array $bind
      * @param int $inspectedRowLimit
      * @return \PDOStatement
      */
@@ -75,11 +71,11 @@ class BigResult
         if ($inspectedRowLimit !== null) {
             $inspectedRows = $this->getInspectedRows($select, $bind);
             if ($inspectedRows > $inspectedRowLimit) {
-                throw new InvalidArgumentException("Number of rows inspected exceeds '$inspectedRowLimit'");
+                throw new InvalidArgumentException("Number of rows inspected exceeds '{$inspectedRowLimit}'");
             }
         }
 
-        $longQueryTime   = $this->options['long_query_time'];
+        $longQueryTime = $this->options['long_query_time'];
         $netWriteTimeout = $this->options['net_write_timeout'];
 
         $adapter = clone $this->adapter;
@@ -94,7 +90,6 @@ class BigResult
 
     /**
      * @param string $select
-     * @param array $bind
      * @return int
      */
     protected function getInspectedRows($select, array $bind)

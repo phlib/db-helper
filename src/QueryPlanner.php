@@ -26,16 +26,13 @@ class QueryPlanner
     protected $bind;
 
     /**
-     * QueryPlanner constructor.
-     * @param Adapter $adapter
      * @param string $select
-     * @param array $bind
      */
     public function __construct(Adapter $adapter, $select, array $bind = [])
     {
         $this->adapter = $adapter;
-        $this->select  = $select;
-        $this->bind    = $bind;
+        $this->select = $select;
+        $this->bind = $bind;
     }
 
     /**

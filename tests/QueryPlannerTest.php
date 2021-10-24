@@ -2,8 +2,8 @@
 
 namespace Phlib\DbHelper\Tests;
 
-use Phlib\DbHelper\QueryPlanner;
 use Phlib\Db\Adapter;
+use Phlib\DbHelper\QueryPlanner;
 
 /**
  * QueryPlanner Test
@@ -42,9 +42,15 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
         $row2 = 2;
         $row3 = 3;
         $plan = [
-            ['rows' => $row1],
-            ['rows' => $row2],
-            ['rows' => $row3]
+            [
+                'rows' => $row1,
+            ],
+            [
+                'rows' => $row2,
+            ],
+            [
+                'rows' => $row3,
+            ],
         ];
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -68,8 +74,12 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
         $row1 = PHP_INT_MAX;
         $row2 = 2;
         $plan = [
-            ['rows' => $row1],
-            ['rows' => $row2]
+            [
+                'rows' => $row1,
+            ],
+            [
+                'rows' => $row2,
+            ],
         ];
 
         $pdoStatement = $this->createMock(\PDOStatement::class);

@@ -2,9 +2,9 @@
 
 namespace Phlib\DbHelper\Tests;
 
+use Phlib\Db\Adapter;
 use Phlib\DbHelper\BigResult;
 use Phlib\DbHelper\Exception\InvalidArgumentException;
-use Phlib\Db\Adapter;
 use Phlib\DbHelper\QueryPlanner;
 
 /**
@@ -32,13 +32,15 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
         $queryTime = 123;
         $this->adapter->expects(static::once())
             ->method('query')
-            ->with(static::stringContains("long_query_time=$queryTime"));
+            ->with(static::stringContains("long_query_time={$queryTime}"));
 
         $this->adapter->expects(static::once())
             ->method('prepare')
             ->willReturn($this->createMock(\PDOStatement::class));
 
-        (new BigResult($this->adapter, ['long_query_time' => $queryTime]))
+        (new BigResult($this->adapter, [
+            'long_query_time' => $queryTime,
+        ]))
             ->query('SELECT');
     }
 
@@ -47,13 +49,15 @@ class BigResultTest extends \PHPUnit_Framework_TestCase
         $writeTimeout = 123;
         $this->adapter->expects(static::once())
             ->method('query')
-            ->with(static::stringContains("net_write_timeout=$writeTimeout"));
+            ->with(static::stringContains("net_write_timeout={$writeTimeout}"));
 
         $this->adapter->expects(static::once())
             ->method('prepare')
             ->willReturn($this->createMock(\PDOStatement::class));
 
-        (new BigResult($this->adapter, ['net_write_timeout' => $writeTimeout]))
+        (new BigResult($this->adapter, [
+            'net_write_timeout' => $writeTimeout,
+        ]))
             ->query('SELECT');
     }
 
