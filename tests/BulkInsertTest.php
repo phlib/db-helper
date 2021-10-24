@@ -3,7 +3,7 @@
 namespace Phlib\DbHelper\Tests;
 
 use Phlib\DbHelper\BulkInsert;
-use Phlib\DbHelper\Exception\RuntimeException;
+use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
 use Phlib\Db\Adapter;
 
 /**
@@ -169,7 +169,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $this->adapter->expects(static::exactly(2))
             ->method('execute')
             ->will(static::onConsecutiveCalls(
-                static::throwException(new RuntimeException('Deadlock found when trying to get lock')),
+                static::throwException(new DbRuntimeException('Deadlock found when trying to get lock')),
                 static::returnValue(1)
             ));
 
@@ -179,12 +179,12 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \Phlib\Db\Exception\RuntimeException
      */
     public function testWriteAllowsNonDeadlockErrorsToBubble()
     {
         $this->adapter->method('execute')
-            ->will(static::throwException(new RuntimeException('Some other foo exception')));
+            ->will(static::throwException(new DbRuntimeException('Some other foo exception')));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
         $inserter->add(['field1' => 'foo', 'field2' => 'bar']);

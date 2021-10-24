@@ -3,7 +3,7 @@
 namespace Phlib\DbHelper;
 
 use Phlib\Db\Adapter;
-use Phlib\DbHelper\Exception\RuntimeException;
+use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
 
 /**
  * Class BulkInsert
@@ -153,7 +153,6 @@ class BulkInsert
      * Writes the changes so far to the database.
      *
      * @return $this
-     * @throws RuntimeException
      */
     public function write()
     {
@@ -166,7 +165,7 @@ class BulkInsert
         do {
             try {
                 $affectedRows = $this->adapter->execute($sql);
-            } catch (RuntimeException $e) {
+            } catch (DbRuntimeException $e) {
                 if (stripos($e->getMessage(), 'Deadlock') === false) {
                     throw $e;
                 }
