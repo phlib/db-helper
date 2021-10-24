@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - *BulkInsert*: **BC Break**: Private visibility for `fetchSql()` method. This
   shouldn't be used in regular implementations, as the SQL is used directly by
   `write()`.
+### Removed
+- **BC break**: Removed support for PHP versions < v7.1 as they are no longer
+  [actively supported](https://php.net/supported-versions.php) by the PHP project.
 
 ## [1.0.2] - 2021-10-24
 ### Fixed
