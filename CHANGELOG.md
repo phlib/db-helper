@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
+- *BulkInsert*: **BC Break**: Private visibility for `fetchSql()` method. This
+  shouldn't be used in regular implementations, as the SQL is used directly by
+  `write()`.
 
 ## [1.0.2] - 2021-10-24
 ### Fixed
