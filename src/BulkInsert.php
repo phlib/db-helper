@@ -184,16 +184,12 @@ class BulkInsert
     }
 
     /**
-     * Constructs the bulk insert statement based on the rows added so far. If
-     * no rows have been added then it returns false.
-     *
-     * @return string|false
+     * @return string
      */
-    public function fetchSql()
+    private function fetchSql()
     {
-        if (count($this->rows) == 0) {
-            return false;
-        }
+        // No need to check for non-zero row count.
+        // This method is only called from write(), which has its own check for zero rows.
         $values = [];
         foreach ($this->rows as $row) {
             $quoted = array_map([$this->adapter->quote(), 'value'], $row);

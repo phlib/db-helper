@@ -44,12 +44,14 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         $updateFields = ['field'];
         $inserter = new BulkInsert($this->adapter, $table, $insertFields, $updateFields);
 
-        $inserter->add([$value]);
-        $actual = $inserter->fetchSql();
-
         $expectedSql = "VALUES ({$expected})";
+        $this->adapter->expects(static::once())
+            ->method('execute')
+            ->with(static::stringContains($expectedSql));
 
-        static::assertContains($expectedSql, $actual);
+        $inserter
+            ->add([$value])
+            ->write();
     }
 
     public function fetchSqlQuotesDataProvider()
@@ -88,22 +90,31 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             $inserter->insertIgnoreDisabled();
         }
 
-        $inserter->add(['value']);
-        $actual = $inserter->fetchSql();
+        $sqlTest = function ($actual) use ($ignore, $update) {
+            $needle = 'INSERT IGNORE INTO';
+            if ($ignore && !$update) {
+                static::assertContains($needle, $actual);
+            } else {
+                static::assertNotContains($needle, $actual);
+            }
 
-        $needle = 'INSERT IGNORE INTO';
-        if ($ignore && !$update) {
-            static::assertContains($needle, $actual);
-        } else {
-            static::assertNotContains($needle, $actual);
-        }
+            $needle = 'ON DUPLICATE KEY UPDATE';
+            if ($update) {
+                static::assertContains($needle, $actual);
+            } else {
+                static::assertNotContains($needle, $actual);
+            }
 
-        $needle = 'ON DUPLICATE KEY UPDATE';
-        if ($update) {
-            static::assertContains($needle, $actual);
-        } else {
-            static::assertNotContains($needle, $actual);
-        }
+            return true;
+        };
+
+        $this->adapter->expects(static::once())
+            ->method('execute')
+            ->with(static::callback($sqlTest));
+
+        $inserter
+            ->add(['value'])
+            ->write();
     }
 
     public function fetchSqlIgnoreUpdateDataProvider()
@@ -114,11 +125,6 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             [false, true],
             [false, false]
         ];
-    }
-
-    public function testFetchSqlReturnsFalseWhenNoRows()
-    {
-        static::assertFalse((new BulkInsert($this->adapter, 'table', ['field']))->fetchSql());
     }
 
     public function testAddCallsWriteWhenExceedsBatchSize()
