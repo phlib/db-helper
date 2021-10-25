@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper;
 
 use Phlib\Db\Adapter;
@@ -16,79 +18,45 @@ use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
  */
 class BulkInsert
 {
-    /**
-     * @var Adapter
-     */
-    protected $adapter;
+    private Adapter $adapter;
+
+    private string $table;
+
+    private array $insertFields;
+
+    private array $updateFields;
+
+    private bool $insertIgnore = false;
+
+    private array $rows = [];
+
+    private int $batchSize;
+
+    private int $totalRows = 0;
+
+    private int $totalInserted = 0;
+
+    private int $totalUpdated = 0;
 
     /**
-     * @var string
-     */
-    protected $table;
-
-    /**
-     * @var array
-     */
-    protected $insertFields;
-
-    /**
-     * @var array
-     */
-    protected $updateFields;
-
-    /**
-     * @var bool
-     */
-    protected $insertIgnore = false;
-
-    /**
-     * @var array
-     */
-    protected $rows = [];
-
-    /**
-     * @var integer
-     */
-    protected $batchSize;
-
-    /**
-     * @var integer
-     */
-    protected $totalRows = 0;
-
-    /**
-     * @var integer
-     */
-    protected $totalInserted = 0;
-
-    /**
-     * @var integer
-     */
-    protected $totalUpdated = 0;
-
-    /**
-     * Constructor
-     *
-     * @param Adapter $adapter
-     * @param string  $table
-     * @param array $insertFields
-     * @param array $updateFields
      * @param array $options {
      *     @var int $batchSize Default 200
      * }
      */
     public function __construct(
         Adapter $adapter,
-        $table,
+        string $table,
         array $insertFields,
         array $updateFields = [],
         array $options = []
     ) {
-        $options = $options + ['batchSize' => 200];
+        $options = $options + [
+            'batchSize' => 200,
+        ];
 
-        $this->adapter   = $adapter;
-        $this->table     = $table;
-        $this->batchSize = (integer)$options['batchSize'];
+        $this->adapter = $adapter;
+        $this->table = $table;
+        $this->batchSize = (int)$options['batchSize'];
 
         $this->setInsertFields($insertFields);
         $this->setUpdateFields($updateFields);
@@ -96,11 +64,8 @@ class BulkInsert
 
     /**
      * Sets the insert fields for the bulk statement.
-     *
-     * @param  array $fields
-     * @return $this
      */
-    public function setInsertFields(array $fields)
+    public function setInsertFields(array $fields): self
     {
         $this->insertFields = $fields;
         return $this;
@@ -108,20 +73,17 @@ class BulkInsert
 
     /**
      * Sets the update fields for the bulk statement.
-     *
-     * @param  array $fields
-     * @return $this
      */
-    public function setUpdateFields(array $fields)
+    public function setUpdateFields(array $fields): self
     {
         $this->updateFields = [];
         if (count($fields) > 0) {
             $values = [];
             foreach ($fields as $key => $value) {
                 if (is_int($key)) {
-                    $values[] = "$value = VALUES($value)";
+                    $values[] = "{$value} = VALUES({$value})";
                 } else {
-                    $values[] = $this->adapter->quote()->into("$key = ?", $value);
+                    $values[] = $this->adapter->quote()->into("{$key} = ?", $value);
                 }
             }
             $this->updateFields = $values;
@@ -134,13 +96,10 @@ class BulkInsert
      * Adds a row to the bulk insert. Row should be an indexed array matching
      * the order of the fields given. If the magic number is reached then it'll
      * automatically write the changes to the database.
-     *
-     * @param  array $row
-     * @return $this
      */
-    public function add(array $row)
+    public function add(array $row): self
     {
-        if (count($row) == count($this->insertFields)) {
+        if (count($row) === count($this->insertFields)) {
             $this->rows[] = $row;
             if (count($this->rows) >= $this->batchSize) {
                 $this->write();
@@ -151,13 +110,11 @@ class BulkInsert
 
     /**
      * Writes the changes so far to the database.
-     *
-     * @return $this
      */
-    public function write()
+    public function write(): self
     {
         $rowCount = count($this->rows);
-        if ($rowCount == 0) {
+        if ($rowCount === 0) {
             return $this;
         }
 
@@ -175,18 +132,15 @@ class BulkInsert
 
         $this->rows = [];
 
-        $updatedRows          = $affectedRows - $rowCount;
-        $this->totalRows     += $rowCount;
+        $updatedRows = $affectedRows - $rowCount;
+        $this->totalRows += $rowCount;
         $this->totalInserted += $rowCount - $updatedRows;
-        $this->totalUpdated  += $updatedRows;
+        $this->totalUpdated += $updatedRows;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    private function fetchSql()
+    private function fetchSql(): string
     {
         // No need to check for non-zero row count.
         // This method is only called from write(), which has its own check for zero rows.
@@ -206,9 +160,9 @@ class BulkInsert
             $insert[] = 'IGNORE';
         }
         $insert[] = "INTO {$this->table}";
-        $insert[] = "(" . implode(', ', $this->insertFields) . ") VALUES";
+        $insert[] = '(' . implode(', ', $this->insertFields) . ') VALUES';
 
-        return trim(implode(' ', $insert) . " $values $update");
+        return trim(implode(' ', $insert) . " {$values} {$update}");
     }
 
     /**
@@ -222,54 +176,38 @@ class BulkInsert
      *     'updated'  => 50,
      *     'pending'  => 0
      * )
-     *
-     * @param  boolean $flush
-     * @return array
      */
-    public function fetchStats($flush = true)
+    public function fetchStats(bool $flush = true): array
     {
-        if ((boolean)$flush) {
+        if ($flush) {
             $this->write();
         }
-        $stats = [
-            'total'    => $this->totalRows,
+        return [
+            'total' => $this->totalRows,
             'inserted' => $this->totalInserted,
-            'updated'  => $this->totalUpdated,
-            'pending'  => count($this->rows)
+            'updated' => $this->totalUpdated,
+            'pending' => count($this->rows),
         ];
-        return $stats;
     }
 
     /**
      * Clear the currently recorded statistics.
-     *
-     * @return $this
      */
-    public function clearStats()
+    public function clearStats(): self
     {
-        $this->totalRows     = 0;
+        $this->totalRows = 0;
         $this->totalInserted = 0;
-        $this->totalUpdated  = 0;
+        $this->totalUpdated = 0;
         return $this;
     }
 
-    /**
-     * Enable usage of INSERT INGORE
-     *
-     * @return $this
-     */
-    public function insertIgnoreEnabled()
+    public function insertIgnoreEnabled(): self
     {
         $this->insertIgnore = true;
         return $this;
     }
 
-    /**
-     * Disable usage of INSERT INGORE
-     *
-     * @return $this
-     */
-    public function insertIgnoreDisabled()
+    public function insertIgnoreDisabled(): self
     {
         $this->insertIgnore = false;
         return $this;

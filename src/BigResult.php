@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper;
 
-use Phlib\DbHelper\Exception\InvalidArgumentException;
 use Phlib\Db\Adapter;
+use Phlib\DbHelper\Exception\InvalidArgumentException;
 
 /**
  * @package Phlib\DbHelper
@@ -11,23 +13,13 @@ use Phlib\Db\Adapter;
  */
 class BigResult
 {
-    /**
-     * @var Adapter
-     */
-    protected $adapter;
+    private Adapter $adapter;
+
+    private array $options;
+
+    private \Closure $queryPlannerFactory;
 
     /**
-     * @var array
-     */
-    protected $options;
-
-    /**
-     * @var \Closure
-     */
-    private $queryPlannerFactory;
-
-    /**
-     * @param Adapter $adapter
      * @param array $options {
      *     @var int $long_query_time   Default 7200
      *     @var int $net_write_timeout Default 7200
@@ -38,48 +30,41 @@ class BigResult
     {
         $this->adapter = $adapter;
         $this->options = $options + [
-            'long_query_time'   => 7200,
-            'net_write_timeout' => 7200
+            'long_query_time' => 7200,
+            'net_write_timeout' => 7200,
         ];
 
         if ($queryPlannerFactory === null) {
-            $queryPlannerFactory = function (Adapter $adapter, $select, array $bind = []) {
+            $queryPlannerFactory = function (Adapter $adapter, string $select, array $bind = []): QueryPlanner {
                 return new QueryPlanner($adapter, $select, $bind);
             };
         }
         $this->queryPlannerFactory = $queryPlannerFactory;
     }
 
-    /**
-     * @param Adapter $adapter
-     * @param string $select
-     * @param array $bind
-     * @param null $rowLimit
-     * @return \PDOStatement
-     */
-    public static function execute(Adapter $adapter, $select, array $bind = [], $rowLimit = null)
-    {
-        return (new static($adapter))->query($select, $bind, $rowLimit);
+    public static function execute(
+        Adapter $adapter,
+        string $select,
+        array $bind = [],
+        int $rowLimit = null
+    ): \PDOStatement {
+        return (new static($adapter))
+            ->query($select, $bind, $rowLimit);
     }
 
     /**
      * Execute query and return the unbuffered statement.
-     *
-     * @param string $select
-     * @param array $bind
-     * @param int $inspectedRowLimit
-     * @return \PDOStatement
      */
-    public function query($select, array $bind = [], $inspectedRowLimit = null)
+    public function query(string $select, array $bind = [], int $inspectedRowLimit = null): \PDOStatement
     {
         if ($inspectedRowLimit !== null) {
             $inspectedRows = $this->getInspectedRows($select, $bind);
             if ($inspectedRows > $inspectedRowLimit) {
-                throw new InvalidArgumentException("Number of rows inspected exceeds '$inspectedRowLimit'");
+                throw new InvalidArgumentException("Number of rows inspected exceeds '{$inspectedRowLimit}'");
             }
         }
 
-        $longQueryTime   = $this->options['long_query_time'];
+        $longQueryTime = $this->options['long_query_time'];
         $netWriteTimeout = $this->options['net_write_timeout'];
 
         $adapter = clone $this->adapter;
@@ -92,16 +77,9 @@ class BigResult
         return $stmt;
     }
 
-    /**
-     * @param string $select
-     * @param array $bind
-     * @return int
-     */
-    protected function getInspectedRows($select, array $bind)
+    private function getInspectedRows(string $select, array $bind): int
     {
-        // @todo php70 Use uniform variable syntax to skip local variable
-        $queryPlannerFactory = $this->queryPlannerFactory;
-        return $queryPlannerFactory($this->adapter, $select, $bind)
+        return ($this->queryPlannerFactory)($this->adapter, $select, $bind)
             ->getNumberOfRowsInspected();
     }
 }

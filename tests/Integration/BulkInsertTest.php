@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests\Integration;
 
 use Phlib\Db\SqlFragment;
@@ -10,7 +12,7 @@ use Phlib\DbHelper\BulkInsert;
  */
 class BulkInsertTest extends IntegrationTestCase
 {
-    public function testInsert()
+    public function testInsert(): void
     {
         $this->createTestTable();
 
@@ -65,7 +67,7 @@ SQL;
         static::assertSame($expectedRows, $stmt->fetchAll());
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->createTestTable();
 
@@ -125,7 +127,7 @@ SQL;
         static::assertSame($updateExpected, $stmtAfterUpdate->fetch());
     }
 
-    public function testIgnore()
+    public function testIgnore(): void
     {
         // Similar to testUpdate, but the value should NOT be changed
         $this->createTestTable();
@@ -148,7 +150,8 @@ SQL;
         ];
         $updateExpected = [
             'test_id' => (string)$id,
-            'char_col' => $text1, // Value should not be changed from initial value
+            // Value should not be changed from initial value
+            'char_col' => $text1,
         ];
 
         $selectSql = <<<SQL
@@ -188,7 +191,7 @@ SQL;
         static::assertSame($updateExpected, $stmtAfterUpdate->fetch());
     }
 
-    public function testUpdateExpressionValue()
+    public function testUpdateExpressionValue(): void
     {
         // Similar to testUpdate, but the value is set by the update expression, not to the given row value
         $this->createTestTable();
@@ -212,7 +215,8 @@ SQL;
         ];
         $updateExpected = [
             'test_id' => (string)$id,
-            'char_col' => $text3, // Value should be set from the update expression
+            // Value should be set from the update expression
+            'char_col' => $text3,
         ];
 
         $selectSql = <<<SQL
@@ -254,7 +258,7 @@ SQL;
         static::assertSame($updateExpected, $stmtAfterUpdate->fetch());
     }
 
-    public function testUpdateExpressionSql()
+    public function testUpdateExpressionSql(): void
     {
         // Similar to testUpdate, but the value is set by the update expression, not to the given row value
         $this->createTestTable();
@@ -278,7 +282,8 @@ SQL;
         ];
         $updateExpected = [
             'test_id' => (string)$id,
-            'char_col' => $text1 . $text3, // Value should be set from the update expression
+            // Value should be set from the update expression
+            'char_col' => $text1 . $text3,
         ];
 
         $selectSql = <<<SQL

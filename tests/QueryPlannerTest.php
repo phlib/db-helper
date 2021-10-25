@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phlib\DbHelper\Tests;
 
-use Phlib\DbHelper\QueryPlanner;
 use Phlib\Db\Adapter;
+use Phlib\DbHelper\QueryPlanner;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * QueryPlanner Test
@@ -11,23 +15,28 @@ use Phlib\Db\Adapter;
  * @package Phlib\DbHelper
  * @licence LGPL-3.0
  */
-class QueryPlannerTest extends \PHPUnit_Framework_TestCase
+class QueryPlannerTest extends TestCase
 {
     /**
-     * @var \Phlib\Db\Adapter|\PHPUnit_Framework_MockObject_MockObject
+     * @var Adapter|MockObject
      */
-    protected $adapter;
+    private MockObject $adapter;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->adapter = $this->createMock(Adapter::class);
 
         parent::setUp();
     }
 
-    public function testGetPlanDoesExplain()
+    public function testGetPlanDoesExplain(): void
     {
         $pdoStatement = $this->createMock(\PDOStatement::class);
+        $pdoStatement->expects(static::once())
+            ->method('fetchAll')
+            ->with(\PDO::FETCH_ASSOC)
+            ->willReturn([]);
+
         $this->adapter->expects(static::once())
             ->method('query')
             ->with(static::stringContains('EXPLAIN', true))
@@ -36,15 +45,21 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
         (new QueryPlanner($this->adapter, 'SELECT'))->getPlan();
     }
 
-    public function testGetNumberOfRowsInspected()
+    public function testGetNumberOfRowsInspected(): void
     {
         $row1 = 1;
         $row2 = 2;
         $row3 = 3;
         $plan = [
-            ['rows' => $row1],
-            ['rows' => $row2],
-            ['rows' => $row3]
+            [
+                'rows' => $row1,
+            ],
+            [
+                'rows' => $row2,
+            ],
+            [
+                'rows' => $row3,
+            ],
         ];
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -60,16 +75,20 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
         $planner = new QueryPlanner($this->adapter, 'SELECT');
 
         $expected = $row1 * $row2 * $row3;
-        static::assertEquals($expected, $planner->getNumberOfRowsInspected());
+        static::assertSame($expected, $planner->getNumberOfRowsInspected());
     }
 
-    public function testGetNumberOfRowsInspectedDoesNotExceedMaxInt()
+    public function testGetNumberOfRowsInspectedDoesNotExceedMaxInt(): void
     {
         $row1 = PHP_INT_MAX;
         $row2 = 2;
         $plan = [
-            ['rows' => $row1],
-            ['rows' => $row2]
+            [
+                'rows' => $row1,
+            ],
+            [
+                'rows' => $row2,
+            ],
         ];
 
         $pdoStatement = $this->createMock(\PDOStatement::class);
@@ -84,6 +103,6 @@ class QueryPlannerTest extends \PHPUnit_Framework_TestCase
 
         $planner = new QueryPlanner($this->adapter, 'SELECT');
 
-        static::assertInternalType('integer', $planner->getNumberOfRowsInspected());
+        static::assertIsInt($planner->getNumberOfRowsInspected());
     }
 }
