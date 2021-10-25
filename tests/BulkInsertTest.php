@@ -2,6 +2,7 @@
 
 namespace Phlib\DbHelper\Tests;
 
+use Phlib\Db\SqlFragment;
 use Phlib\DbHelper\BulkInsert;
 use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
 use Phlib\Db\Adapter;
@@ -33,11 +34,11 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider fetchSqlQuotesDataProvider
+     * @dataProvider dataSqlQuotes
      * @param mixed $value
      * @param string $expected
      */
-    public function testFetchSqlQuotes($value, $expected)
+    public function testSqlQuotes($value, $expected)
     {
         $table = 'test_table';
         $insertFields = ['field'];
@@ -54,7 +55,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ->write();
     }
 
-    public function fetchSqlQuotesDataProvider()
+    public function dataSqlQuotes()
     {
         return [
             ['string', '`string`'],
@@ -69,12 +70,104 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
         ];
     }
 
+    public function testSqlHandlesMultipleFieldsAndValues()
+    {
+        $table = sha1(uniqid());
+        $fields = [
+            sha1(uniqid()),
+            sha1(uniqid()),
+            sha1(uniqid()),
+        ];
+        $values1 = [
+            rand(),
+            rand(),
+            rand(),
+        ];
+        $values2 = [
+            rand(),
+            rand(),
+            rand(),
+        ];
+
+        $duplicate = [];
+        foreach ($fields as $field) {
+            $duplicate[] = $field . " = VALUES({$field})";
+        }
+        $expectedSql = "INSERT INTO {$table} (" .
+            implode(', ', $fields) . ') VALUES (' .
+            implode(', ', $values1) . '), (' .
+            implode(', ', $values2) . ') ' .
+            'ON DUPLICATE KEY UPDATE ' .
+            implode(', ', $duplicate);
+
+        $inserter = new BulkInsert($this->adapter, $table, $fields, $fields);
+
+        $this->adapter->expects(static::once())
+            ->method('execute')
+            ->with($expectedSql);
+
+        $inserter
+            ->add($values1)
+            ->add($values2)
+            ->write();
+    }
+
     /**
-     * @dataProvider fetchSqlIgnoreUpdateDataProvider
+     * @dataProvider dataSqlUpdateExpression
+     */
+    public function testSqlUpdateExpression($updateValue, $expected)
+    {
+        $table = sha1(uniqid());
+        $fields = [
+            sha1(uniqid()),
+            sha1(uniqid()),
+        ];
+        $updateFields = [
+            $fields[0],
+            $fields[1] => $updateValue,
+        ];
+        $values = [
+            rand(),
+            rand(),
+        ];
+
+        $expectedSql = "INSERT INTO {$table} (" .
+            implode(', ', $fields) . ') VALUES (' .
+            implode(', ', $values) . ') ' .
+            'ON DUPLICATE KEY UPDATE ' .
+            $fields[0] . " = VALUES({$fields[0]}), " .
+            $fields[1] . " = {$expected}";
+
+        $inserter = new BulkInsert($this->adapter, $table, $fields, $updateFields);
+
+        $this->adapter->expects(static::once())
+            ->method('execute')
+            ->with($expectedSql);
+
+        $inserter
+            ->add($values)
+            ->write();
+    }
+
+    public function dataSqlUpdateExpression()
+    {
+        $int = rand();
+        $string = sha1(uniqid());
+        $sql = new SqlFragment('Some SQL expression');
+
+        return [
+            'int-not-quoted' => [$int, $int],
+            'string-quoted' => [$string, "`{$string}`"],
+            'sql-as-given' => [$sql, (string)$sql],
+        ];
+    }
+
+    /**
+     * @dataProvider dataSqlIgnoreUpdate
      * @param bool $ignore
      * @param bool $update
      */
-    public function testFetchSqlIgnoreUpdate($ignore, $update)
+    public function testSqlIgnoreUpdate($ignore, $update)
     {
         $table = 'test_table';
         $insertFields = ['field'];
@@ -117,7 +210,7 @@ class BulkInsertTest extends \PHPUnit_Framework_TestCase
             ->write();
     }
 
-    public function fetchSqlIgnoreUpdateDataProvider()
+    public function dataSqlIgnoreUpdate()
     {
         return [
             [true, true],
