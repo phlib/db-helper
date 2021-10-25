@@ -75,7 +75,7 @@ class QueryPlannerTest extends TestCase
         $planner = new QueryPlanner($this->adapter, 'SELECT');
 
         $expected = $row1 * $row2 * $row3;
-        static::assertEquals($expected, $planner->getNumberOfRowsInspected());
+        static::assertSame($expected, $planner->getNumberOfRowsInspected());
     }
 
     public function testGetNumberOfRowsInspectedDoesNotExceedMaxInt(): void

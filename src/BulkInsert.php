@@ -129,7 +129,7 @@ class BulkInsert
      */
     public function add(array $row): self
     {
-        if (count($row) == count($this->insertFields)) {
+        if (count($row) === count($this->insertFields)) {
             $this->rows[] = $row;
             if (count($this->rows) >= $this->batchSize) {
                 $this->write();
@@ -144,7 +144,7 @@ class BulkInsert
     public function write(): self
     {
         $rowCount = count($this->rows);
-        if ($rowCount == 0) {
+        if ($rowCount === 0) {
             return $this;
         }
 

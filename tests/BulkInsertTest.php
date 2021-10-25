@@ -315,7 +315,7 @@ class BulkInsertTest extends TestCase
             'pending' => 0,
         ];
         $inserter = new BulkInsert($this->adapter, 'table', ['field1']);
-        static::assertEquals($expected, $inserter->fetchStats($flush = false));
+        static::assertSame($expected, $inserter->fetchStats($flush = false));
     }
 
     public function testFetchStatsOnInitialConstructWithFlush(): void
@@ -327,7 +327,7 @@ class BulkInsertTest extends TestCase
             'pending' => 0,
         ];
         $inserter = new BulkInsert($this->adapter, 'table', ['field1']);
-        static::assertEquals($expected, $inserter->fetchStats($flush = true));
+        static::assertSame($expected, $inserter->fetchStats($flush = true));
     }
 
     /**
@@ -353,7 +353,7 @@ class BulkInsertTest extends TestCase
         }
 
         $stats = $inserter->fetchStats($withFlush);
-        static::assertEquals($expected, $stats[$statistic]);
+        static::assertSame($expected, $stats[$statistic]);
     }
 
     public function fetchStatsIncrementsDataProvider(): array
@@ -410,8 +410,8 @@ class BulkInsertTest extends TestCase
             'updated' => 0,
             'pending' => 0,
         ];
-        static::assertNotEquals($expected, $inserter->fetchStats(true));
+        static::assertNotSame($expected, $inserter->fetchStats(true));
         $inserter->clearStats();
-        static::assertEquals($expected, $inserter->fetchStats(true));
+        static::assertSame($expected, $inserter->fetchStats(true));
     }
 }
