@@ -187,16 +187,16 @@ class BulkInsertTest extends TestCase
         $sqlTest = function (string $actual) use ($ignore, $update) {
             $needle = 'INSERT IGNORE INTO';
             if ($ignore && !$update) {
-                static::assertContains($needle, $actual);
+                static::assertStringContainsString($needle, $actual);
             } else {
-                static::assertNotContains($needle, $actual);
+                static::assertStringNotContainsString($needle, $actual);
             }
 
             $needle = 'ON DUPLICATE KEY UPDATE';
             if ($update) {
-                static::assertContains($needle, $actual);
+                static::assertStringContainsString($needle, $actual);
             } else {
-                static::assertNotContains($needle, $actual);
+                static::assertStringNotContainsString($needle, $actual);
             }
 
             return true;

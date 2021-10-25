@@ -103,6 +103,6 @@ class QueryPlannerTest extends TestCase
 
         $planner = new QueryPlanner($this->adapter, 'SELECT');
 
-        static::assertInternalType('integer', $planner->getNumberOfRowsInspected());
+        static::assertIsInt($planner->getNumberOfRowsInspected());
     }
 }
