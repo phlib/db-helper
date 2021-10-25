@@ -9,20 +9,11 @@ use PHPUnit\Framework\TestCase;
 
 abstract class IntegrationTestCase extends TestCase
 {
-    /**
-     * @var Adapter
-     */
-    protected $adapter;
+    protected Adapter $adapter;
 
-    /**
-     * @var string
-     */
-    protected $schemaTable;
+    protected string $schemaTable;
 
-    /**
-     * @var string
-     */
-    protected $schemaTableQuoted;
+    protected string $schemaTableQuoted;
 
     protected function setUp(): void
     {

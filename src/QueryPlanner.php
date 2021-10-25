@@ -12,20 +12,11 @@ use Phlib\Db\Adapter;
  */
 class QueryPlanner
 {
-    /**
-     * @var Adapter
-     */
-    private $adapter;
+    private Adapter $adapter;
 
-    /**
-     * @var string
-     */
-    private $select;
+    private string $select;
 
-    /**
-     * @var array
-     */
-    private $bind;
+    private array $bind;
 
     public function __construct(Adapter $adapter, string $select, array $bind = [])
     {

@@ -18,55 +18,25 @@ use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
  */
 class BulkInsert
 {
-    /**
-     * @var Adapter
-     */
-    private $adapter;
+    private Adapter $adapter;
 
-    /**
-     * @var string
-     */
-    private $table;
+    private string $table;
 
-    /**
-     * @var array
-     */
-    private $insertFields;
+    private array $insertFields;
 
-    /**
-     * @var array
-     */
-    private $updateFields;
+    private array $updateFields;
 
-    /**
-     * @var bool
-     */
-    private $insertIgnore = false;
+    private bool $insertIgnore = false;
 
-    /**
-     * @var array
-     */
-    private $rows = [];
+    private array $rows = [];
 
-    /**
-     * @var integer
-     */
-    private $batchSize;
+    private int $batchSize;
 
-    /**
-     * @var integer
-     */
-    private $totalRows = 0;
+    private int $totalRows = 0;
 
-    /**
-     * @var integer
-     */
-    private $totalInserted = 0;
+    private int $totalInserted = 0;
 
-    /**
-     * @var integer
-     */
-    private $totalUpdated = 0;
+    private int $totalUpdated = 0;
 
     /**
      * @param array $options {

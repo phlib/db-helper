@@ -6,8 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
-- Type declarations have been added to all method parameters and return types
-  where possible.
+- Type declarations have been added to all properties, method parameters and
+  return types where possible.
 ### Changed
 - *BulkInsert*: **BC Break**: Private visibility for `fetchSql()` method. This
   shouldn't be used in regular implementations, as the SQL is used directly by

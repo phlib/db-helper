@@ -13,20 +13,11 @@ use Phlib\DbHelper\Exception\InvalidArgumentException;
  */
 class BigResult
 {
-    /**
-     * @var Adapter
-     */
-    private $adapter;
+    private Adapter $adapter;
 
-    /**
-     * @var array
-     */
-    private $options;
+    private array $options;
 
-    /**
-     * @var \Closure
-     */
-    private $queryPlannerFactory;
+    private \Closure $queryPlannerFactory;
 
     /**
      * @param array $options {

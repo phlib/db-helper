@@ -20,7 +20,7 @@ class QueryPlannerTest extends TestCase
     /**
      * @var Adapter|MockObject
      */
-    private $adapter;
+    private MockObject $adapter;
 
     protected function setUp(): void
     {
