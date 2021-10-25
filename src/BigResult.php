@@ -16,12 +16,12 @@ class BigResult
     /**
      * @var Adapter
      */
-    protected $adapter;
+    private $adapter;
 
     /**
      * @var array
      */
-    protected $options;
+    private $options;
 
     /**
      * @var \Closure
@@ -86,7 +86,7 @@ class BigResult
         return $stmt;
     }
 
-    protected function getInspectedRows(string $select, array $bind): int
+    private function getInspectedRows(string $select, array $bind): int
     {
         return ($this->queryPlannerFactory)($this->adapter, $select, $bind)
             ->getNumberOfRowsInspected();

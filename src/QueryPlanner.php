@@ -15,17 +15,17 @@ class QueryPlanner
     /**
      * @var Adapter
      */
-    protected $adapter;
+    private $adapter;
 
     /**
      * @var string
      */
-    protected $select;
+    private $select;
 
     /**
      * @var array
      */
-    protected $bind;
+    private $bind;
 
     public function __construct(Adapter $adapter, string $select, array $bind = [])
     {

@@ -22,7 +22,7 @@ class BigResultTest extends TestCase
     /**
      * @var Adapter|MockObject
      */
-    protected $adapter;
+    private $adapter;
 
     protected function setUp(): void
     {

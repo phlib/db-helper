@@ -21,52 +21,52 @@ class BulkInsert
     /**
      * @var Adapter
      */
-    protected $adapter;
+    private $adapter;
 
     /**
      * @var string
      */
-    protected $table;
+    private $table;
 
     /**
      * @var array
      */
-    protected $insertFields;
+    private $insertFields;
 
     /**
      * @var array
      */
-    protected $updateFields;
+    private $updateFields;
 
     /**
      * @var bool
      */
-    protected $insertIgnore = false;
+    private $insertIgnore = false;
 
     /**
      * @var array
      */
-    protected $rows = [];
+    private $rows = [];
 
     /**
      * @var integer
      */
-    protected $batchSize;
+    private $batchSize;
 
     /**
      * @var integer
      */
-    protected $totalRows = 0;
+    private $totalRows = 0;
 
     /**
      * @var integer
      */
-    protected $totalInserted = 0;
+    private $totalInserted = 0;
 
     /**
      * @var integer
      */
-    protected $totalUpdated = 0;
+    private $totalUpdated = 0;
 
     /**
      * @param array $options {
