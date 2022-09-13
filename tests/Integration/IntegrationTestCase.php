@@ -29,6 +29,9 @@ abstract class IntegrationTestCase extends TestCase
             'port' => getenv('INTEGRATION_PORT'),
             'username' => getenv('INTEGRATION_USERNAME'),
             'password' => getenv('INTEGRATION_PASSWORD'),
+            'attributes' => [
+                \PDO::ATTR_EMULATE_PREPARES => false,
+            ],
         ]);
     }
 

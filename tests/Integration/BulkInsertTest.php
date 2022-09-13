@@ -49,11 +49,11 @@ class BulkInsertTest extends IntegrationTestCase
 
         $expectedRows = [
             [
-                'test_id' => (string)$values1[0],
+                'test_id' => $values1[0],
                 'char_col' => $values1[1],
             ],
             [
-                'test_id' => (string)$values2[0],
+                'test_id' => $values2[0],
                 'char_col' => $values2[1],
             ],
         ];
@@ -80,7 +80,7 @@ SQL;
             'char_col' => $text1,
         ];
         $startExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             'char_col' => $text1,
         ];
         $updateData = [
@@ -88,7 +88,7 @@ SQL;
             $text2,
         ];
         $updateExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             'char_col' => $text2,
         ];
 
@@ -141,7 +141,7 @@ SQL;
             'char_col' => $text1,
         ];
         $startExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             'char_col' => $text1,
         ];
         $updateData = [
@@ -149,7 +149,7 @@ SQL;
             $text2,
         ];
         $updateExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             // Value should not be changed from initial value
             'char_col' => $text1,
         ];
@@ -206,7 +206,7 @@ SQL;
             'char_col' => $text1,
         ];
         $startExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             'char_col' => $text1,
         ];
         $updateData = [
@@ -214,7 +214,7 @@ SQL;
             $text2,
         ];
         $updateExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             // Value should be set from the update expression
             'char_col' => $text3,
         ];
@@ -273,7 +273,7 @@ SQL;
             'char_col' => $text1,
         ];
         $startExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             'char_col' => $text1,
         ];
         $updateData = [
@@ -281,7 +281,7 @@ SQL;
             $text2,
         ];
         $updateExpected = [
-            'test_id' => (string)$id,
+            'test_id' => $id,
             // Value should be set from the update expression
             'char_col' => $text1 . $text3,
         ];
