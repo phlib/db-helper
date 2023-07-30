@@ -1,6 +1,6 @@
 # phlib/db-helper
 
-[![Code Checks](https://img.shields.io/github/workflow/status/phlib/db-helper/CodeChecks?logo=github)](https://github.com/phlib/db-helper/actions/workflows/code-checks.yml)
+[![Code Checks](https://img.shields.io/github/actions/workflow/status/phlib/db-helper/code-checks.yml?logo=github)](https://github.com/phlib/db-helper/actions/workflows/code-checks.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/phlib/db-helper.svg?logo=codecov)](https://codecov.io/gh/phlib/db-helper)
 [![Latest Stable Version](https://img.shields.io/packagist/v/phlib/db-helper.svg?logo=packagist)](https://packagist.org/packages/phlib/db-helper)
 [![Total Downloads](https://img.shields.io/packagist/dt/phlib/db-helper.svg?logo=packagist)](https://packagist.org/packages/phlib/db-helper)
