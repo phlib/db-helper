@@ -39,9 +39,9 @@ class BulkInsert
     private int $totalUpdated = 0;
 
     /**
-     * @param array $options {
-     *     @var int $batchSize Default 200
-     * }
+     * @param array{
+     *     batchSize?: int, // Default 200
+     * } $options
      */
     public function __construct(
         Adapter $adapter,

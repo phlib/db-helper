@@ -20,10 +20,10 @@ class BigResult
     private \Closure $queryPlannerFactory;
 
     /**
-     * @param array $options {
-     *     @var int $long_query_time   Default 7200
-     *     @var int $net_write_timeout Default 7200
-     * }
+     * @param array{
+     *     long_query_time?: int, // Default 7200
+     *     net_write_timeout?: int, // Default 7200
+     * } $options
      * @internal @param \Closure Used for DI in tests; not expected to be used in production. Not part of BC promise.
      */
     public function __construct(Adapter $adapter, array $options = [], \Closure $queryPlannerFactory = null)
