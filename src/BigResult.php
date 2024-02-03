@@ -24,7 +24,7 @@ class BigResult
      *     long_query_time?: int, // Default 7200
      *     net_write_timeout?: int, // Default 7200
      * } $options
-     * @internal @param \Closure Used for DI in tests; not expected to be used in production. Not part of BC promise.
+     * @internal @param \Closure $queryPlannerFactory Used for DI in tests; not expected to be used in production. Not part of BC promise.
      */
     public function __construct(Adapter $adapter, array $options = [], \Closure $queryPlannerFactory = null)
     {
