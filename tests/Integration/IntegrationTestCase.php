@@ -54,6 +54,7 @@ abstract class IntegrationTestCase extends TestCase
 CREATE TABLE {$this->schemaTableQuoted} (
   `test_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `char_col` varchar(255) DEFAULT NULL,
+  `int_col` tinyint(128) NOT NULL DEFAULT 0,
   `update_ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`test_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii

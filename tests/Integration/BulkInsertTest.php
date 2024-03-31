@@ -267,27 +267,34 @@ SQL;
         $text1 = sha1(uniqid());
         $text2 = sha1(uniqid());
         $text3 = sha1(uniqid());
+        $int1 = rand(1, 100);
+        $int2 = rand(1, 10);
 
         $startData = [
             'test_id' => $id,
             'char_col' => $text1,
+            'int_col' => $int1,
         ];
         $startExpected = [
             'test_id' => $id,
             'char_col' => $text1,
+            'int_col' => $int1,
         ];
         $updateData = [
             $id,
             $text2,
+            $int2,
         ];
         $updateExpected = [
             'test_id' => $id,
             // Value should be set from the update expression
             'char_col' => $text1 . $text3,
+            // Value should be set from the update expression
+            'int_col' => $int1 + $int2,
         ];
 
         $selectSql = <<<SQL
-SELECT test_id, char_col
+SELECT test_id, char_col, int_col
 FROM {$this->schemaTableQuoted}
 SQL;
 
@@ -301,9 +308,11 @@ SQL;
         $fields = [
             'test_id',
             'char_col',
+            'int_col',
         ];
         $updateFields = [
             'char_col' => new SqlFragment("CONCAT(char_col, '{$text3}')"),
+            'int_col' => new SqlFragment('int_col + VALUES(int_col)'),
         ];
         $inserter = new BulkInsert($this->adapter, $this->schemaTable, $fields, $updateFields);
 
