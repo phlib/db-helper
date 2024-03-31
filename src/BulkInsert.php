@@ -8,8 +8,6 @@ use Phlib\Db\Adapter;
 use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
 
 /**
- * Class BulkInsert
- *
  * Used to insert large amounts of data into a single table in defined batch
  * sizes.
  *
