@@ -91,12 +91,14 @@ class BulkInsertTest extends TestCase
             rand(),
         ];
 
+        $insert = [];
         $duplicate = [];
         foreach ($fields as $field) {
-            $duplicate[] = $field . " = VALUES({$field})";
+            $insert[] = "`{$field}`";
+            $duplicate[] = "`{$field}` = VALUES(`{$field}`)";
         }
-        $expectedSql = "INSERT INTO {$table} (" .
-            implode(', ', $fields) . ') VALUES (' .
+        $expectedSql = "INSERT INTO `{$table}` (" .
+            implode(', ', $insert) . ') VALUES (' .
             implode(', ', $values1) . '), (' .
             implode(', ', $values2) . ') ' .
             'ON DUPLICATE KEY UPDATE ' .
@@ -134,12 +136,16 @@ class BulkInsertTest extends TestCase
             rand(),
         ];
 
-        $expectedSql = "INSERT INTO {$table} (" .
-            implode(', ', $fields) . ') VALUES (' .
+        $insert = [];
+        foreach ($fields as $field) {
+            $insert[] = "`{$field}`";
+        }
+        $expectedSql = "INSERT INTO `{$table}` (" .
+            implode(', ', $insert) . ') VALUES (' .
             implode(', ', $values) . ') ' .
             'ON DUPLICATE KEY UPDATE ' .
-            $fields[0] . " = VALUES({$fields[0]}), " .
-            $fields[1] . " = {$expected}";
+            "`{$fields[0]}` = VALUES(`{$fields[0]}`), " .
+            "`{$fields[1]}` = {$expected}";
 
         $inserter = new BulkInsert($this->adapter, $table, $fields, $updateFields);
 

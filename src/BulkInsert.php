@@ -79,9 +79,11 @@ class BulkInsert
             $values = [];
             foreach ($fields as $key => $value) {
                 if (is_int($key)) {
-                    $values[] = "{$value} = VALUES({$value})";
+                    $quotedField = $this->adapter->quote()->identifier($value);
+                    $values[] = "{$quotedField} = VALUES({$quotedField})";
                 } else {
-                    $values[] = $this->adapter->quote()->into("{$key} = ?", $value);
+                    $quotedField = $this->adapter->quote()->identifier($key);
+                    $values[] = $this->adapter->quote()->into("{$quotedField} = ?", $value);
                 }
             }
             $this->updateFields = $values;
@@ -157,8 +159,9 @@ class BulkInsert
         } elseif ($this->insertIgnore === true) {
             $insert[] = 'IGNORE';
         }
-        $insert[] = "INTO {$this->table}";
-        $insert[] = '(' . implode(', ', $this->insertFields) . ') VALUES';
+        $insert[] = 'INTO ' . $this->adapter->quote()->identifier($this->table);
+        $quotedInsert = array_map([$this->adapter->quote(), 'identifier'], $this->insertFields);
+        $insert[] = '(' . implode(', ', $quotedInsert) . ') VALUES';
 
         return trim(implode(' ', $insert) . " {$values} {$update}");
     }
