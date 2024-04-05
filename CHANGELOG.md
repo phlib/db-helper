@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [3.0.0] - 2024-04-05
 ### Changed
 - **BC break**: *BulkInsert*: Automatically quote identifiers for the table and fields.
   Implementations must remove any manual identifier quotes that they were
