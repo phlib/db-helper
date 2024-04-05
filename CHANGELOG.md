@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+### Changed
 - **BC break**: *BulkInsert*: Automatically quote identifiers for the table and fields.
   Implementations must remove any manual identifier quotes that they were
   previously forced to include manually.
+### Removed
+- **BC break**: Removed support for PHP v7.4 as it is no longer
+  [actively supported](https://php.net/supported-versions.php) by the PHP project.
 
 ## [2.0.0] - 2021-10-25
 ### Added
