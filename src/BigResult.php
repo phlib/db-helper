@@ -13,8 +13,6 @@ use Phlib\DbHelper\Exception\InvalidArgumentException;
  */
 class BigResult
 {
-    private Adapter $adapter;
-
     private array $options;
 
     private \Closure $queryPlannerFactory;
@@ -26,9 +24,11 @@ class BigResult
      * } $options
      * @internal @param \Closure $queryPlannerFactory Used for DI in tests; not expected to be used in production. Not part of BC promise.
      */
-    public function __construct(Adapter $adapter, array $options = [], \Closure $queryPlannerFactory = null)
-    {
-        $this->adapter = $adapter;
+    public function __construct(
+        private Adapter $adapter,
+        array $options = [],
+        \Closure $queryPlannerFactory = null
+    ) {
         $this->options = $options + [
             'long_query_time' => 7200,
             'net_write_timeout' => 7200,

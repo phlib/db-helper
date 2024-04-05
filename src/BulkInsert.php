@@ -16,10 +16,6 @@ use Phlib\Db\Exception\RuntimeException as DbRuntimeException;
  */
 class BulkInsert
 {
-    private Adapter $adapter;
-
-    private string $table;
-
     private array $insertFields;
 
     private array $updateFields;
@@ -42,8 +38,8 @@ class BulkInsert
      * } $options
      */
     public function __construct(
-        Adapter $adapter,
-        string $table,
+        private Adapter $adapter,
+        private string $table,
         array $insertFields,
         array $updateFields = [],
         array $options = []
@@ -51,9 +47,6 @@ class BulkInsert
         $options = $options + [
             'batchSize' => 200,
         ];
-
-        $this->adapter = $adapter;
-        $this->table = $table;
         $this->batchSize = (int)$options['batchSize'];
 
         $this->setInsertFields($insertFields);
