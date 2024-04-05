@@ -184,7 +184,7 @@ class BulkInsertTest extends TestCase
             $inserter->insertIgnoreDisabled();
         }
 
-        $sqlTest = function (string $actual) use ($ignore, $update) {
+        $sqlTest = function (string $actual) use ($ignore, $update): bool {
             $needle = 'INSERT IGNORE INTO';
             if ($ignore && !$update) {
                 static::assertStringContainsString($needle, $actual);
