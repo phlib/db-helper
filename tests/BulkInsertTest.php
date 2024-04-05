@@ -40,7 +40,7 @@ class BulkInsertTest extends TestCase
     /**
      * @dataProvider dataSqlQuotes
      */
-    public function testSqlQuotes($value, string $expected): void
+    public function testSqlQuotes(string|int|float $value, string $expected): void
     {
         $table = 'test_table';
         $insertFields = ['field'];
@@ -120,7 +120,7 @@ class BulkInsertTest extends TestCase
      * @dataProvider dataSqlUpdateExpression
      * @param mixed $updateValue
      */
-    public function testSqlUpdateExpression($updateValue, string $expected): void
+    public function testSqlUpdateExpression(string|int|SqlFragment $updateValue, string $expected): void
     {
         $table = sha1(uniqid());
         $fields = [
@@ -229,9 +229,7 @@ class BulkInsertTest extends TestCase
 
     public function testAddCallsWriteWhenExceedsBatchSize(): void
     {
-        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], [
-            'batchSize' => 1,
-        ]);
+        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], batchSize: 1);
 
         $this->adapter->expects(static::once())
             ->method('execute')

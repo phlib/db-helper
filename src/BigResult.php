@@ -13,27 +13,17 @@ use Phlib\DbHelper\Exception\InvalidArgumentException;
  */
 class BigResult
 {
-    private Adapter $adapter;
-
-    private array $options;
-
     private \Closure $queryPlannerFactory;
 
     /**
-     * @param array{
-     *     long_query_time?: int, // Default 7200
-     *     net_write_timeout?: int, // Default 7200
-     * } $options
      * @internal @param \Closure $queryPlannerFactory Used for DI in tests; not expected to be used in production. Not part of BC promise.
      */
-    public function __construct(Adapter $adapter, array $options = [], \Closure $queryPlannerFactory = null)
-    {
-        $this->adapter = $adapter;
-        $this->options = $options + [
-            'long_query_time' => 7200,
-            'net_write_timeout' => 7200,
-        ];
-
+    public function __construct(
+        private Adapter $adapter,
+        private int $longQueryTime = 7200,
+        private int $netWriteTimeout = 7200,
+        \Closure $queryPlannerFactory = null
+    ) {
         if ($queryPlannerFactory === null) {
             $queryPlannerFactory = function (Adapter $adapter, string $select, array $bind = []): QueryPlanner {
                 return new QueryPlanner($adapter, $select, $bind);
@@ -64,11 +54,8 @@ class BigResult
             }
         }
 
-        $longQueryTime = $this->options['long_query_time'];
-        $netWriteTimeout = $this->options['net_write_timeout'];
-
         $adapter = clone $this->adapter;
-        $adapter->query("SET @@long_query_time={$longQueryTime}, @@net_write_timeout={$netWriteTimeout}");
+        $adapter->query("SET @@long_query_time={$this->longQueryTime}, @@net_write_timeout={$this->netWriteTimeout}");
         $adapter->disableBuffering();
 
         $stmt = $adapter->prepare($select);
