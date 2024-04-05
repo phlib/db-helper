@@ -42,9 +42,10 @@ class BigResultTest extends TestCase
             ->method('prepare')
             ->willReturn($this->createMock(\PDOStatement::class));
 
-        (new BigResult($this->adapter, [
-            'long_query_time' => $queryTime,
-        ]))
+        (new BigResult(
+            $this->adapter,
+            longQueryTime: $queryTime,
+        ))
             ->query('SELECT');
     }
 
@@ -59,9 +60,10 @@ class BigResultTest extends TestCase
             ->method('prepare')
             ->willReturn($this->createMock(\PDOStatement::class));
 
-        (new BigResult($this->adapter, [
-            'net_write_timeout' => $writeTimeout,
-        ]))
+        (new BigResult(
+            $this->adapter,
+            netWriteTimeout: $writeTimeout,
+        ))
             ->query('SELECT');
     }
 
@@ -117,7 +119,7 @@ class BigResultTest extends TestCase
             return $queryPlanner;
         };
 
-        $bigResult = new BigResult($this->adapter, [], $queryPlannerFactory);
+        $bigResult = new BigResult($this->adapter, queryPlannerFactory: $queryPlannerFactory);
         $this->adapter->expects(static::once())
             ->method('query')
             ->with(static::stringStartsWith('SET @@long_query_time='));
@@ -164,7 +166,7 @@ class BigResultTest extends TestCase
             return $queryPlanner;
         };
 
-        $bigResult = new BigResult($this->adapter, [], $queryPlannerFactory);
+        $bigResult = new BigResult($this->adapter, queryPlannerFactory: $queryPlannerFactory);
         $this->adapter->expects(static::never())
             ->method('query');
 

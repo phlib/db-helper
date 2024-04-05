@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - **BC break**: *BulkInsert*: Automatically quote identifiers for the table and fields.
   Implementations must remove any manual identifier quotes that they were
   previously forced to include manually.
+- **BC break**: *BulkInsert*: Move the single constructor option, `batchSize`,
+  to its own parameter.
+- **BC break**: *BigResult*: Move constructor options to their own parameters.
 ### Removed
 - **BC break**: Removed support for PHP v7.4 as it is no longer
   [actively supported](https://php.net/supported-versions.php) by the PHP project.

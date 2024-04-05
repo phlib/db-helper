@@ -229,9 +229,7 @@ class BulkInsertTest extends TestCase
 
     public function testAddCallsWriteWhenExceedsBatchSize(): void
     {
-        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], [
-            'batchSize' => 1,
-        ]);
+        $inserter = new BulkInsert($this->adapter, 'table_name', ['field1'], [], batchSize: 1);
 
         $this->adapter->expects(static::once())
             ->method('execute')
