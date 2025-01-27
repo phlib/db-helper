@@ -22,7 +22,7 @@ class BigResult
         private Adapter $adapter,
         private int $longQueryTime = 7200,
         private int $netWriteTimeout = 7200,
-        \Closure $queryPlannerFactory = null
+        \Closure $queryPlannerFactory = null,
     ) {
         if ($queryPlannerFactory === null) {
             $queryPlannerFactory = function (Adapter $adapter, string $select, array $bind = []): QueryPlanner {
@@ -36,7 +36,7 @@ class BigResult
         Adapter $adapter,
         string $select,
         array $bind = [],
-        int $rowLimit = null
+        int $rowLimit = null,
     ): \PDOStatement {
         return (new static($adapter))
             ->query($select, $bind, $rowLimit);

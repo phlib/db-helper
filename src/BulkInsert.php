@@ -35,7 +35,7 @@ class BulkInsert
         private string $table,
         array $insertFields,
         array $updateFields = [],
-        private int $batchSize = 200
+        private int $batchSize = 200,
     ) {
         $this->setInsertFields($insertFields);
         $this->setUpdateFields($updateFields);

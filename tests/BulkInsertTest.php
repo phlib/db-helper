@@ -284,7 +284,7 @@ class BulkInsertTest extends TestCase
             ->method('execute')
             ->will(static::onConsecutiveCalls(
                 static::throwException(new DbRuntimeException('Deadlock found when trying to get lock')),
-                static::returnValue(1)
+                static::returnValue(1),
             ));
 
         $inserter = new BulkInsert($this->adapter, 'table', ['field1', 'field2']);
@@ -342,7 +342,7 @@ class BulkInsertTest extends TestCase
         string $statistic,
         int $noOfInserts,
         int $noOfUpdates,
-        bool $withFlush
+        bool $withFlush,
     ): void {
         $affectedRows = ($noOfUpdates * 2) + $noOfInserts;
         $this->adapter->method('execute')

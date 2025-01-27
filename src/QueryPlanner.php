@@ -15,7 +15,7 @@ class QueryPlanner
     public function __construct(
         private Adapter $adapter,
         private string $select,
-        private array $bind = []
+        private array $bind = [],
     ) {
     }
 

@@ -107,7 +107,7 @@ class BigResultTest extends TestCase
         $queryPlannerFactory = function (
             Adapter $adapterPass,
             string $selectPass,
-            array $bindPass = []
+            array $bindPass = [],
         ) use (
             $queryPlanner,
             $select,
@@ -154,7 +154,7 @@ class BigResultTest extends TestCase
         $queryPlannerFactory = function (
             Adapter $adapterPass,
             string $selectPass,
-            array $bindPass = []
+            array $bindPass = [],
         ) use (
             $queryPlanner,
             $select,
