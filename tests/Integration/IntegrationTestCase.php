@@ -30,6 +30,7 @@ abstract class IntegrationTestCase extends TestCase
             'username' => getenv('INTEGRATION_USERNAME'),
             'password' => getenv('INTEGRATION_PASSWORD'),
             'attributes' => [
+                // @todo php81 Not required for phlib/db v3; can be removed when dropping support for phlib/db v2
                 \PDO::ATTR_EMULATE_PREPARES => false,
             ],
         ]);
